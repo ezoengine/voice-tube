@@ -1,0 +1,168 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<script src="jquery-2.1.1.min.js"></script>
+
+<polymer-element name="x-word" verify attributes='size sound' >
+<template>
+  <link rel='stylesheet' href="x-word.css">
+   <div id='ctx'>
+  	<input id='i' type='input' value=''>
+  </div>
+</template>
+<script>
+(function(){
+	var speech = new SpeechSynthesisUtterance();
+	var voices = window.speechSynthesis.getVoices();
+    speech.lang = 'en';
+	speech.accent = 'en-US';
+	function _speak(words){
+		if(words){
+			speech.text = words;
+			window.speechSynthesis.speak(speech);
+		}
+	}
+
+	Polymer({
+		word: '',
+		size: 32,
+		sound: true,
+		firstFocusTime: 0,
+		spendTime: 0,
+		isCorrect: false,
+		seeAns: false,
+		speakTimes: 0,
+		isCompleted: false,
+		info:function(i){
+			if(i){
+				this.word = i.word;
+				this.firstFocusTime = i.firstFocusTime;
+				this.spendTime = i.spendTime;
+				this.seeAns = i.seeAns;
+				this.speakTimes = i.speakTimes;
+				this.$.i.value = i.value;
+				this.isCorrect = i.isCorrect;
+				this.validate();
+				if(!i.isCorrect){
+					this.$.ctx.querySelector('span').style.color = '#faa';
+					this.isCorrect =i.isCorrect;
+				}
+			}else{
+				return {
+					word: this.word,
+					firstFocusTime: this.firstFocusTime,
+					spendTime: this.spendTime,
+					isCorrect: this.isCorrect,
+					seeAns: this.seeAns,
+					speakTimes: this.speakTimes,
+					value: this.$.i.value
+				}
+			}
+		},
+		speak:function(){
+			_speak(this.word);
+		},
+		ready:function(){
+			$(this.$.ctx).css({
+				'transition-duration':'1s'
+			});
+			$(this.$.i).css({
+				'transition-duration':'1s'
+			});
+		},
+		attached: function () {
+			this.word = this.innerHTML;
+			this.innerHTML = '';
+			this.initField();
+			this.keyinEvent();
+		},
+		initField : function(){
+			var len = this.word.length;
+			this.$.i.style.width = len*this.size*5/7+'px';
+			this.$.ctx.style.width = len*this.size*5/7+'px';
+			this.$.i.setAttribute('maxlength',len);			
+		},
+		keyinEvent: function(){
+			var self = this;
+			this.$.i.addEventListener('focus',function(e){
+				if(self.firstFocusTime == 0){
+					self.firstFocusTime = new Date().getTime();
+				};
+			});
+			this.$.i.addEventListener('keyup',function(e){
+				var val = self.$.i.value;
+				if(self.getAttribute('verify')!=null){
+					self.validate();
+				}
+				if(self.word.length == val.length && 
+					e.keyCode!=9 /*tab*/ && e.keyCode!=16 /*shift*/){
+					self.focusNext();
+				} else if(val.length==0 && e.keyCode==8){
+					self.focusPrev();
+				} else if(e.keyCode==188 /*,*/ || e.keyCode==91 /*Mac CMD*/){
+					self.speakTimes++;
+					self.$.i.value = val.replace(/,/g,'');
+					if(self.sound){
+						self.speak();
+					}
+					self.fire('x-word-sound',self.word);
+				} else if(val.indexOf('.')>-1){
+					self.seeAns = true;
+					var ele = self.$.i;
+					$(ele).val(val.replace('.',''));
+					$(ele).css('color','#f78');
+					$(ele).val('');
+					$(ele).attr('placeholder',self.word);
+					self.speak();
+		        }
+			});
+		},
+		value:function(val){
+			this.$.i.value = val;
+		},
+		validate:function(){
+			if(this.word.length === this.$.i.value.length){
+				var state = "";
+				if(this.word === this.$.i.value){
+					state = "ok";
+					this.isCorrect = true;
+					this.repaceEle();
+				}else {
+					$(this.$.i).css({'background-color':'#faa'});
+					state = "err";
+				}
+				this.setAttribute(state,'');
+				var nowTime = new Date().getTime();
+				this.spendTime = nowTime - this.firstFocusTime;
+				this.fire('x-word-check',state);
+				this.isCompleted = true;
+			}
+		},
+		repaceEle:function(){
+			this.$.i.parentNode.removeChild(this.$.i);
+			var txt = document.createElement('span');
+			txt.style.marginTop = '7px';
+			txt.style.width = this.$.ctx.style.width;
+			if(this.isCompleted || this.seeAns){
+				$(txt).addClass('seeAns');
+				this.isCorrect = false;
+			}
+			txt.innerHTML = this.word;
+			this.$.ctx.appendChild(txt);
+		},
+		focus:function(){
+			if(this.getAttribute('ok')!=null){
+				this.focusNext();
+			};
+			this.$.i.focus();
+		},
+		focusNext:function(){
+			var ele = $(this).nextAll('x-word')[0];
+			if(ele) ele.focus();
+		},
+		focusPrev:function(){
+			var ele = $(this).prev('x-word');
+			if(ele) ele.focus();
+		}
+	});
+})();
+</script>
+</polymer-element>

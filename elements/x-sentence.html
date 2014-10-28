@@ -1,0 +1,165 @@
+<link rel="import" href="x-word.html">
+
+<polymer-element name="x-sentence" verify attributes='size sound idx'>
+<template>
+	<div id='main'>
+		<template id='ctx' repeat='{{word in words}}'>
+			<template if='{{!isEscapeChar(word)}}'>
+				<x-word size='{{size}}' sound='false'>{{word}}</x-word>
+			</template>
+			<template if='{{isEscapeChar(word)}}'>
+				<div style='float:left;margin-bottom:3px'>{{word}}</div>
+			</template>
+		</template>
+	</div>
+	<div style='clear:both'></div>
+</template>
+<script>
+(function(){
+	var speech = new SpeechSynthesisUtterance();
+	var voices = window.speechSynthesis.getVoices();
+    speech.lang = 'en';
+	speech.accent = 'en-US';
+	function _speak(words){
+		if(words){
+			speech.text = words;
+			window.speechSynthesis.speak(speech);
+		}
+	};
+	PolymerExpressions.prototype.isEscapeChar = function(word){
+		return word.length==0 || word.length==1 && ',. ?!":;'.indexOf(word)>=0;
+	};
+	Polymer({
+		total: 0,
+		size: 24,
+		sound: true,
+		escapeChar:',. ?!":;',
+		seeAns:[],
+		wrongAns:[],
+		corrects: 0,
+		spendTime: 0,
+		speakTimes: 0,
+		inputWordAmt: 0,
+		isCompleted: false,
+		ready:function(){
+			var my = this;
+			this.addEventListener('x-word-sound',function(e){
+				if(my.sound){
+					_speak(my.sentence);
+				}else{
+					my.fire('x-sentence-sound',my.idx);
+				}
+			});
+			// word is completed.
+			this.addEventListener('x-word-check',function(e){
+				my.refreshState();
+			});
+		},
+		focus:function(){
+			this.wordList()[0].focus();
+		},
+		refreshState:function(){
+			var wordList = this.$.main.querySelectorAll('x-word');
+			var my = this;
+			my.corrects = 0;
+			my.speakTimes = 0;
+			my.spendTime = 0;
+			my.seeAns = [];
+			my.wrongAns = [];
+			my.inputWordAmt = 0;
+			my.total = wordList.length;
+			$.each(wordList,function(i,xword){
+				if(xword.isCorrect) {
+					my.corrects++;
+				}else {
+					my.wrongAns.push(xword.word);
+				}
+				if(xword.spendTime>0){
+					my.inputWordAmt ++;
+				}
+				my.speakTimes += xword.speakTimes;
+				my.spendTime += xword.spendTime; 
+				if(xword.seeAns){
+					my.seeAns.push(xword.word);
+				}
+			});
+			if(my.inputWordAmt === wordList.length){
+				my.isCompleted = true;
+			}
+			if(my.isCompleted){
+				this.fire('x-sentence-completed',{key:my.idx,val:my});
+			}
+		},
+		info:function(i){
+			var my = this;
+			this.refreshState();
+			if(i!=undefined){
+					i = JSON.parse(i);
+					my.total = i.total;
+					my.seeAns = i.seeAns;
+					my.wrongAns = i.wrongAns;
+					my.corrects = i.corrects;
+					my.speakTimes = i.speakTimes;
+					my.spendTime = i.spendTime;
+					my.isCompleted = i.isCompleted;
+					$.each(i.sentence,function(idx,info){
+						my.wordList(idx).info(info);
+					});
+			}else {
+				i = {
+					total:my.total,
+					seeAns:my.seeAns,
+					wrongAns:my.wrongAns,
+					corrects: my.corrects,
+					speakTimes:my.speakTimes,
+					spendTime:my.spendTime/1000.0,
+					isCompleted:my.isCompleted,
+					sentence:[]
+				};
+				var wordList = my.wordList();
+				$.each(wordList,function(idx,xword){
+					i.sentence.push(xword.info());
+				});
+				return JSON.stringify(i);
+			}
+		},
+		attached: function () {
+			var my = this;
+			this.sentence = this.innerHTML.trim();
+			this.words = this.crawlWord(this.sentence);
+			this.innerHTML = '';
+		},
+		speak:function(){
+			_speak(this.sentence);
+		},
+		wordList: function(idx){
+			if(idx!=undefined){
+				return this.$.main.querySelectorAll('x-word')[idx];
+			}else{
+				return this.$.main.querySelectorAll('x-word');
+			}
+		},
+	    crawlWord : function(rawData){
+	      var term ='';
+	      var ctx = [];
+	      this.ans = rawData;
+	      for(var i=0;i<rawData.length;i++){
+	        var c = rawData.charAt(i);
+	        if(this.escapeChar.indexOf(c)>-1){
+	          ctx.push(term);
+	          if(c!=' ') {ctx.push(c);}
+	          term = '';
+	        } else{
+	          term += c;
+	        }
+	      }
+	      if(term.length>1){
+	      	ctx.push(term);
+	      }
+	      $(this).html('');
+	      return ctx;
+	    }
+	});
+})();
+</script>
+</polymer-element>

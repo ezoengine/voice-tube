@@ -1,0 +1,157 @@
+<link rel="import" href="../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="x-sentence.html">
+
+<polymer-element name="voice-tube" verify attributes='youtubeid vid size youtubewidth youtubeheight exam'>
+<template>
+  <link rel='stylesheet' href="voice-tube.css">
+	<google-youtube id='youtube' height="{{youtubeheight}}" width="{{youtubewidth}}" rel="0" start="5"
+	videoid='{{youtubeid}}'></google-youtube>
+	<div id='sentence'>
+	<template repeat='{{item in sentences}}'>
+		{{item.seq}}. <img src='speak.png' idx="{{item.seq-1}}" width='48px' on-click='{{playSentence}}' style="cursor:pointer;">{{item.cn}}
+		<x-sentence size='{{item.size}}' idx="{{item.seq-1}}" sound='false'>{{item.text}}</x-sentence>	
+		<br>	
+	</template>
+	</div>
+</template>
+<script>
+(function(){
+	Polymer({
+		exam: '1..',
+		idx: 0,
+		size:32,
+		captions:'',
+	    intervalId:'',
+	    playTimeoutId:'',
+	    playCurrentTime:0,
+	    playNewStartTime:0,
+	    youtubewidth: '320px',
+	    youtubeheight: '240px',
+	    examInfo: {state:{}},
+	    start_end: [],
+	    playSentence:function(e){
+	    	this.play(e.toElement.getAttribute('idx'));
+	    },
+		ready:function(){
+			var my = this;
+			my.player = this.$.youtube;
+			my.youtubeid = my.youtubeid.trim();
+			my.youtubeid = my.youtubeid.indexOf('http')==0 ? 
+			my.youtubeid.substring(my.youtubeid.indexOf('v=')+2):
+			my.youtubeid;
+			//sole.log('youtube id['+my.youtubeid+']');
+			document.addEventListener('google-youtube-ready',function(){
+				$.each(my.captions.en,function(i){
+					my.captions.en[i].cn = '';
+					if(my.captions.hasOwnProperty('zh-Hant')){
+						my.captions.en[i].cn = my.captions['zh-Hant'][i].text;
+					};
+				});
+				my.examSetting();
+				setTimeout(function(){my.fire('voice-tube-ready')},300);
+			});
+			// get captions
+			$.ajax(
+				{dataType: 'jsonp',
+				 url: 'http://cdn.voicetube.tw/assets/captions/'+my.vid+'.js'})
+			.always(function(){my.captions = captions;});
+			// register sentence speak event
+			this.addEventListener('x-sentence-sound',function(e){
+				my.play(e.detail);
+			});
+			// 
+			document.addEventListener('x-sentence-completed',function(e){
+				var sentObj = e.detail;
+				my.examInfo.state[sentObj.key] = sentObj.val;
+				var now = Object.keys(my.examInfo.state).length;
+				if(now == my.sentences.length){
+					my.completed();
+				}
+				var nextIdx = parseInt(sentObj.key) - my.start_end[0]+1;
+				if(nextIdx<my.start_end[1]){
+					my.sentenceList(nextIdx).focus();
+				}
+			});
+		},
+		examSetting:function(){
+			var my = this;
+			var start_end = [0,my.captions.en.length];
+			if(my.exam.indexOf('..')>0){
+				var tmp = my.exam.split('..');
+				start_end[0] = tmp[0]-1;
+				if(tmp[1]!=='' && tmp[1] % 1 === 0){
+					start_end[1] = tmp[1]-tmp[0] + 1;
+				}
+			}else if(my.exam!=='' && my.exam %1 === 0){
+				start_end=[ parseInt(my.exam)-1 , 1 ];
+			}
+			my.sentences = my.captions.en.splice(start_end[0],start_end[1]);
+			my.start_end = start_end;
+		},
+		completed:function(){
+			var s = this.examInfo.state;
+			var correctAmt = 0 , total = 0 , spendTime = 0 , wrongAmt = [];
+			var speakTimes = 0;
+			for(var key in s){
+				total += s[key].total;
+				spendTime += s[key].spendTime;
+				correctAmt += s[key].corrects;
+				speakTimes += s[key].speakTimes;
+				wrongAmt = wrongAmt.concat(s[key].wrongAns);
+			}
+			var score = parseInt(correctAmt*100/total);
+			this.fire('voice-tube-completed',{
+				score: score,
+				spendTime: spendTime/1000.0,
+				wrongAmt: wrongAmt,
+				speakTimes: speakTimes
+			});
+		},
+		pause:function(){
+			this.player.pause();
+		},
+		play:function(idx){
+			idx = parseInt(idx) - this.start_end[0];
+			var self = this;
+			var stTime = self.sentences[idx].start;
+			var edTime = parseFloat(stTime)+parseFloat(self.sentences[idx].dur);
+			var len = stTime +','+ edTime;
+			var start = len.split(',')[0].trim();
+			start = self.playNewStartTime+parseFloat(start);
+			var end = len.split(',')[1].trim();
+			self.player.seekTo(start);
+			self.player.play();
+			var duTime = (end - start) * 1000;
+			clearTimeout(self.playTimeoutId);
+			clearInterval(self.intervalId);
+			self.playCurrentTime = 0;
+			self.playTime();
+			self.playTimeoutId = setTimeout(function () {
+			self.player.pause();
+			clearInterval(self.intervalId);
+			self.playCurrentTime = 0;
+			}, duTime);
+		},
+	    playTime:function(){
+			var self = this;
+			self.intervalId = setInterval(function(){
+			self.playCurrentTime += 10; //10ms
+			},10);
+	    },
+	    video:function(){
+	    	return this.$.youtube;
+	    },
+	    sentenceList:function(idx){
+			if(idx!=undefined){
+				return this.$.sentence.querySelectorAll('x-sentence')[idx];
+			} else {
+				return this.$.sentence.querySelectorAll('x-sentence');
+			}	    	
+	    },
+	    focus:function(){
+	    	this.sentenceList(0).focus();
+	    }
+	});
+})();
+</script>
+</polymer-element>
