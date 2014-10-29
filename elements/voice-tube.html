@@ -4,14 +4,13 @@
 <polymer-element name="voice-tube" verify attributes='youtubeid vid size youtubewidth youtubeheight exam'>
 <template>
   <link rel='stylesheet' href="voice-tube.css">
-	<google-youtube id='youtube' height="{{youtubeheight}}" width="{{youtubewidth}}" rel="0" start="5"
-	videoid='{{youtubeid}}'></google-youtube>
-	<div id='sentence'>
-	<template repeat='{{item in sentences}}'>
-		{{item.seq}}. <img src='speak.png' idx="{{item.seq-1}}" width='48px' on-click='{{playSentence}}' style="cursor:pointer;">{{item.cn}}
-		<x-sentence size='{{item.size}}' idx="{{item.seq-1}}" sound='false'>{{item.text}}</x-sentence>	
-		<br>	
-	</template>
+	<google-youtube id='youtube' height="{{youtubeheight}}" width="{{youtubewidth}}" rel="0" start="5" videoid='{{youtubeid}}'></google-youtube>
+	<div id='sentence' style="font-size:{{size}}px">
+		<template repeat='{{item in sentences}}'>
+			{{item.seq}}. <img src='speak.png' idx="{{item.seq-1}}" width='48px' on-click='{{playSentence}}' style="cursor:pointer;">{{item.cn}}
+			<x-sentence size='{{size}}' idx="{{item.seq-1}}" sound='false'>{{item.text}}</x-sentence>	
+			<br>	
+		</template>
 	</div>
 </template>
 <script>
@@ -19,7 +18,7 @@
 	Polymer({
 		exam: '1..',
 		idx: 0,
-		size:32,
+		size:16,
 		captions:'',
 	    intervalId:'',
 	    playTimeoutId:'',
@@ -150,6 +149,17 @@
 	    },
 	    focus:function(){
 	    	this.sentenceList(0).focus();
+	    },
+	    info:function(idx){
+	    	var list = this.sentenceList();
+	    	var info = [];
+	    	for(var i=0;i<list.length;i++){
+	    		info.push(list[i].info());
+	    	}
+	    	if(idx!=undefined){
+	    		return info[idx];
+	    	}
+	    	return info;
 	    }
 	});
 })();

@@ -31,12 +31,13 @@
 	};
 	Polymer({
 		total: 0,
-		size: 24,
+		size: 32,
 		sound: true,
 		escapeChar:',. ?!":;',
 		seeAns:[],
 		wrongAns:[],
 		corrects: 0,
+		startTime: 0,
 		spendTime: 0,
 		speakTimes: 0,
 		inputWordAmt: 0,
@@ -53,6 +54,9 @@
 			// word is completed.
 			this.addEventListener('x-word-check',function(e){
 				my.refreshState();
+				if(my.isCompleted){
+				this.fire('x-sentence-completed',{key:my.idx,val:my});
+				}
 			});
 		},
 		focus:function(){
@@ -67,6 +71,7 @@
 			my.seeAns = [];
 			my.wrongAns = [];
 			my.inputWordAmt = 0;
+			my.startTime = wordList[0].firstFocusTime;
 			my.total = wordList.length;
 			$.each(wordList,function(i,xword){
 				if(xword.isCorrect) {
@@ -86,9 +91,6 @@
 			if(my.inputWordAmt === wordList.length){
 				my.isCompleted = true;
 			}
-			if(my.isCompleted){
-				this.fire('x-sentence-completed',{key:my.idx,val:my});
-			}
 		},
 		info:function(i){
 			var my = this;
@@ -102,6 +104,7 @@
 					my.speakTimes = i.speakTimes;
 					my.spendTime = i.spendTime;
 					my.isCompleted = i.isCompleted;
+					my.startTime = i.startTime;
 					$.each(i.sentence,function(idx,info){
 						my.wordList(idx).info(info);
 					});
@@ -114,13 +117,15 @@
 					speakTimes:my.speakTimes,
 					spendTime:my.spendTime/1000.0,
 					isCompleted:my.isCompleted,
+					startTime: my.startTime,
+					idx:my.idx,
 					sentence:[]
 				};
 				var wordList = my.wordList();
 				$.each(wordList,function(idx,xword){
 					i.sentence.push(xword.info());
 				});
-				return JSON.stringify(i);
+				return i;
 			}
 		},
 		attached: function () {
