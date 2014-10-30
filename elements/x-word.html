@@ -1,7 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <script src="jquery-2.1.1.min.js"></script>
 
-<polymer-element name="x-word" verify attributes='size sound' >
+<polymer-element name="x-word" verify attributes='size sound ignoreFirstCase' >
 <template>
   <link rel='stylesheet' href="x-word.css">
    <div id='ctx'>
@@ -31,6 +31,7 @@
 		seeAns: false,
 		speakTimes: 0,
 		isCompleted: false,
+		ignoreFirstCase: true,
 		info:function(i){
 			if(i){
 				this.word = i.word;
@@ -121,7 +122,8 @@
 		validate:function(){
 			if(this.word.length === this.$.i.value.length){
 				var state = "";
-				if(this.word === this.$.i.value){
+				if(this.word === this.$.i.value || this.ignoreFirstCase && 
+					this.capitaliseFirstLetter(this.word)===this.capitaliseFirstLetter(this.$.i.value)){
 					state = "ok";
 					this.isCorrect = true;
 					this.repaceEle();
@@ -135,6 +137,9 @@
 				this.fire('x-word-check',state);
 				this.isCompleted = true;
 			}
+		},
+		capitaliseFirstLetter:function(string){
+			return string.charAt(0).toUpperCase() + string.slice(1);
 		},
 		repaceEle:function(){
 			this.$.i.parentNode.removeChild(this.$.i);

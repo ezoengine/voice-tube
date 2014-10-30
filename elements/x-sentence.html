@@ -3,12 +3,13 @@
 <polymer-element name="x-sentence" verify attributes='size sound idx'>
 <template>
 	<div id='main'>
+		<link rel='stylesheet' href="sentence.css">
 		<template id='ctx' repeat='{{word in words}}'>
 			<template if='{{!isEscapeChar(word)}}'>
 				<x-word size='{{size}}' sound='false'>{{word}}</x-word>
 			</template>
 			<template if='{{isEscapeChar(word)}}'>
-				<div style='float:left;margin-bottom:3px'>{{word}}</div>
+				<div class='escapechar'>{{word}}</div>
 			</template>
 		</template>
 	</div>

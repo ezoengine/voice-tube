@@ -1,0 +1,62 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono">
+		<style>body{font: 32px/1.3 'Droid Sans Mono', sans-serif;}</style>
+		<script src="bower_components/platform/platform.js"></script>
+		<link rel="import" href="elements/voice-tube.html">
+		<script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
+	</head>
+	<body style="background-color:#000;color:#fff;font-size:2em">
+		<div id='spendTime'></div>
+		<div id='wrongList'></div>
+
+		<script>
+			var username = 'marty';
+			var study = {
+				vid: '17440',
+				youtubeid: '4YOwEqGykDM',
+			};
+			var db = new Firebase("https://voice-tube.firebaseio.com/");
+			var sentences = db.child(username+"/"+study.youtubeid+"/sentences");
+				sentences.once('value',function(obj){
+					var info = obj.val();
+					var spendTime = 0;
+					for(var i=0;i<100;i++){
+						var idx = 'idx'+(i<10?'0':'')+i;
+						if(info.hasOwnProperty(idx)){
+							var sentList = info[idx];
+							for(var j=0;j<sentList.length;j++){
+								if(sentList[j]){
+									spendTime += sentList[j].spendTime;
+									wrongAns(sentList[j].wrongAns);
+								}
+							}
+						}
+					}
+					spendTime = parseInt(spendTime/60.0) + ' min ' + parseInt(spendTime%60) + ' sec';
+					document.querySelector('#spendTime').innerHTML = spendTime;
+					var wl = document.querySelector('#wrongList');
+					var str = '<table style="font-size:0.8em"><tr>';
+					for(var key in wrongObj){
+						str += '<td>'+key+'</td><td style="width:100px;text-align:right">'+ wrongObj[key]+'</td></tr>';
+					}
+					str += '</table>';
+					wl.innerHTML = str;
+				});
+
+			var wrongObj = {};
+			function wrongAns(wordList){
+				if(wordList){
+					for(var i=0;i<wordList.length;i++){
+						var w = wordList[i];
+						if(!wrongObj.hasOwnProperty(w)){
+							wrongObj[w] = 0;
+						}
+						wrongObj[w] = wrongObj[w]+1;
+					}
+				}
+			}
+		</script>
+	</body>
+</html>
+

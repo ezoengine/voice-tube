@@ -28,8 +28,10 @@
 			var study = {
 				vid: '17440',
 				youtubeid: '4YOwEqGykDM',
-				exam: '1..10'
+				exam: window.location.hash.substring(1)
 			};
+
+
 			insertVoiceTube(study.vid,study.youtubeid,study.exam);
 
 			addEventListener('x-sentence-completed',function(e){
@@ -41,7 +43,7 @@
 				var initObj = {};
 				initObj[username] = {};
 				initObj[username][study.youtubeid] = {vid:study.vid};
-				db.set(initObj);
+				//db.set(initObj);
 				v.focus();
 			});
 
