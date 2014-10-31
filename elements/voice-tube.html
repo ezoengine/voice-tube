@@ -7,9 +7,9 @@
 	<google-youtube id='youtube' height="{{youtubeheight}}" width="{{youtubewidth}}" rel="0" start="5" videoid='{{youtubeid}}'></google-youtube>
 	<div id='sentence' class='sentence_cn'>
 		<template repeat='{{item in sentences}}'>
-			{{item.seq}}. <img src='speak.png' idx="{{item.seq-1}}" width='48px' on-click='{{playSentence}}' style="cursor:pointer;"><voice-recorder></voice-recorder>{{item.cn}}
+			{{item.seq}}. <img src='voice-player.png' idx="{{item.seq-1}}" width='32px' on-click='{{playSentence}}' style="cursor:pointer;background-color:#aaa;"><voice-recorder></voice-recorder>{{item.cn}}
 			<x-sentence size='{{size}}' idx="{{item.seq-1}}" sound='false'>{{item.text}}</x-sentence>
-			
+
 			<br>	
 		</template>
 	</div>
