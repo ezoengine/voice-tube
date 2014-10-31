@@ -1,14 +1,15 @@
 <link rel="import" href="../bower_components/google-youtube/google-youtube.html">
 <link rel="import" href="x-sentence.html">
-
+<link rel="import" href="voice-recorder.html">
 <polymer-element name="voice-tube" verify attributes='youtubeid vid size youtubewidth youtubeheight exam'>
 <template>
   <link rel='stylesheet' href="voice-tube.css">
 	<google-youtube id='youtube' height="{{youtubeheight}}" width="{{youtubewidth}}" rel="0" start="5" videoid='{{youtubeid}}'></google-youtube>
 	<div id='sentence' class='sentence_cn'>
 		<template repeat='{{item in sentences}}'>
-			{{item.seq}}. <img src='speak.png' idx="{{item.seq-1}}" width='48px' on-click='{{playSentence}}' style="cursor:pointer;">{{item.cn}}
-			<x-sentence size='{{size}}' idx="{{item.seq-1}}" sound='false'>{{item.text}}</x-sentence>	
+			{{item.seq}}. <img src='speak.png' idx="{{item.seq-1}}" width='48px' on-click='{{playSentence}}' style="cursor:pointer;"><voice-recorder></voice-recorder>{{item.cn}}
+			<x-sentence size='{{size}}' idx="{{item.seq-1}}" sound='false'>{{item.text}}</x-sentence>
+			
 			<br>	
 		</template>
 	</div>
@@ -50,12 +51,19 @@
 				setTimeout(function(){my.fire('voice-tube-ready')},300);
 			});
 			// get captions
-			$.ajax(
-				{dataType: 'jsonp',
-				 url: 'http://cdn.voicetube.tw/assets/captions/'+my.vid+'.js'})
-			.always(function(e){
-				console.log('e',e);
-				my.captions = captions;});
+			if(localStorage.getItem(my.vid)){
+				my.captions = JSON.parse(localStorage.getItem(my.vid));
+			}
+			else{
+				$.ajax(
+					{dataType: 'jsonp',
+					 url: 'http://cdn.voicetube.tw/assets/captions/'+my.vid+'.js'})
+				.always(function(e){
+					console.log('load from VoiceTube CDN:'+my.vid);
+					my.captions = captions;
+					localStorage.setItem(my.vid,JSON.stringify(captions));
+				});
+			}
 			// register sentence speak event
 			this.addEventListener('x-sentence-sound',function(e){
 				my.play(e.detail);
@@ -85,6 +93,9 @@
 				}
 			}else if(my.exam!=='' && my.exam %1 === 0){
 				start_end=[ parseInt(my.exam)-1 , 1 ];
+			}
+			for(var i=0;i<my.captions.en.length;i++){
+				my.captions.en[i].seq = i+1;
 			}
 			my.sentences = my.captions.en.splice(start_end[0],start_end[1]);
 			my.start_end = start_end;
