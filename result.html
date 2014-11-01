@@ -12,40 +12,41 @@
 
 		<script>
 			var username = 'marty';
+			var wrongObj = {};
 			var study = {
-				vid: '17440',
-				youtubeid: '4YOwEqGykDM',
+				vid: '17821',
+				youtubeid: 'lZgjpuFGb_8',
 			};
 			var db = new Firebase("https://voice-tube.firebaseio.com/");
+			
 			var sentences = db.child(username+"/"+study.youtubeid+"/sentences");
 				sentences.once('value',function(obj){
-					var info = obj.val();
-					var spendTime = 0;
-					for(var i=0;i<100;i++){
-						var idx = 'idx'+(i<10?'0':'')+i;
-						if(info.hasOwnProperty(idx)){
-							var sentList = info[idx];
-							for(var j=0;j<sentList.length;j++){
-								if(sentList[j]){
-									spendTime += sentList[j].spendTime;
-									wrongAns(sentList[j].wrongAns);
-									print(sentList[j]);
-								}
+				var info = obj.val();
+				var spendTime = 0;
+				for(var i=0;i<100;i++){
+					var idx = 'idx'+(i<10?'0':'')+i;
+					if(info.hasOwnProperty(idx)){
+						var sentList = info[idx];
+						for(var j=0;j<sentList.length;j++){
+							if(sentList[j]){
+								spendTime += sentList[j].spendTime;
+								wrongAns(sentList[j].wrongAns);
 							}
 						}
 					}
-					spendTime = parseInt(spendTime/60.0) + ' min ' + parseInt(spendTime%60) + ' sec';
-					document.querySelector('#spendTime').innerHTML = spendTime;
-					var wl = document.querySelector('#wrongList');
-					var str = '<table style="font-size:0.8em"><tr>';
-					for(var key in wrongObj){
-						str += '<td>'+key+'</td><td style="width:100px;text-align:right">'+ wrongObj[key]+'</td></tr>';
-					}
-					str += '</table>';
-					wl.innerHTML = str;
-				});
+				}
+				spendTime = parseInt(spendTime/60.0) + ' min ' + parseInt(spendTime%60) + ' sec';
+				document.querySelector('#spendTime').innerHTML = spendTime;
+				var wl = document.querySelector('#wrongList');
+				var str = '<table style="font-size:0.8em"><tr>';
+				for(var key in wrongObj){
+					str += '<td>'+key+'</td><td style="width:100px;text-align:right">'+ wrongObj[key]+'</td></tr>';
+				}
+				str += '</table>';
+				wl.innerHTML = str;
+			});
 
-			var wrongObj = {};
+			
 			function wrongAns(wordList){
 				if(wordList){
 					for(var i=0;i<wordList.length;i++){

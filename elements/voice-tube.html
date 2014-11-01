@@ -4,7 +4,7 @@
 <polymer-element name="voice-tube" verify attributes='youtubeid vid size youtubewidth youtubeheight exam'>
 <template>
   <link rel='stylesheet' href="voice-tube.css">
-	<google-youtube id='youtube' height="{{youtubeheight}}" width="{{youtubewidth}}" rel="0" start="5" videoid='{{youtubeid}}'></google-youtube>
+	<google-youtube id='youtube' height="{{youtubeheight}}" width="{{youtubewidth}}" rel="0" start="5" videoid='{{youtubeid}}'></google-youtube><br>
 	<div id='sentence' class='sentence_cn'>
 		<template repeat='{{item in sentences}}'>
 			{{item.seq}}. <img src='voice-player.png' idx="{{item.seq-1}}" width='32px' on-click='{{playSentence}}' style="cursor:pointer;background-color:#aaa;"><voice-recorder></voice-recorder>{{item.cn}}
@@ -25,12 +25,15 @@
 	    playTimeoutId:'',
 	    playCurrentTime:0,
 	    playNewStartTime:0,
-	    youtubewidth: '32px',
-	    youtubeheight: '24px',
+	    youtubewidth: '320px',
+	    youtubeheight: '240px',
 	    examInfo: {state:{}},
 	    start_end: [],
 	    playSentence:function(e){
 	    	this.play(e.toElement.getAttribute('idx'));
+	    },
+	    fixChar:function(sentence){
+
 	    },
 		ready:function(){
 			var my = this;
@@ -42,6 +45,7 @@
 			//sole.log('youtube id['+my.youtubeid+']');
 			document.addEventListener('google-youtube-ready',function(){
 				$.each(my.captions.en,function(i){
+					my.captions.en[i].text = my.captions.en[i].text.replace(/&#39;/g,"'");
 					my.captions.en[i].cn = '';
 					if(my.captions.hasOwnProperty('zh-Hant')){
 						my.captions.en[i].cn = my.captions['zh-Hant'][i].text;

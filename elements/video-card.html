@@ -1,0 +1,54 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<script src="jquery-2.1.1.min.js"></script>
+<polymer-element name="video-card" verify attributes='name vid youtubeid'>
+<template>
+	<link rel='stylesheet' href="video-card.css">
+ 	<div class="card" on-click='{{click}}'>
+   	  <div id='amt' >{{seqAmt}}</div>
+      <div vertical layout>
+      	<div style="width:100%;height:240px;overflow:hidden">
+  		  <img id='img' class='photo'>
+  		</div>
+  		<div class='video'>{{name}}</div>
+    </div>	
+</template>
+<script>
+(function(){
+	Polymer({
+		seqAmt: 0,
+		ready:function(){
+			var my = this;
+			window.qq = my;
+			this.$.img.src = 'http://img.youtube.com/vi/'+this.youtubeid+'/0.jpg';
+			this.load(function(){
+				my.seqAmt = my.captions.en.length;
+			});
+
+	    },
+	    click:function(e){
+	    	this.fire('video-card-click',{
+	    		vid: this.vid,
+	    		youtubeid: this.youtubeid,
+	    		name: this.name
+	    	});
+	    },
+	    load:function(callback){
+	    	var my = this;
+	    	if(localStorage.getItem(my.vid)){
+				my.captions = JSON.parse(localStorage.getItem(my.vid));
+				callback();
+			}else{
+			$.ajax(
+				{dataType: 'jsonp',
+					 url: 'http://cdn.voicetube.tw/assets/captions/'+my.vid+'.js'})
+				.always(function(e){
+					localStorage.setItem(my.vid,JSON.stringify(captions));
+					my.captions = captions;
+					callback();
+				});
+			}
+	    }
+	});
+})();
+</script>
+</polymer-element>
