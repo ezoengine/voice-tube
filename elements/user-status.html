@@ -1,0 +1,28 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<polymer-element name="user-status" verify attributes=''>
+<template>
+	<div layout vertical>
+	<div>目前進度: {{progress}}</div>
+		<template repeat='{{s in sentences}}'>
+			<div layout horizontal>
+				<div flex>{{s.idx}}</div>
+				<div flex>{{s.score}}</div>
+			</div>
+		</template>
+	</div>
+</template>
+<script>
+(function(){
+	Polymer({
+		ready:function(){
+			
+	    },
+	    info:function(info){
+	    	console.log('info',info.sentences[0]);
+	    	this.progress = info.progress;
+	    	this.sentences = info.sentences;
+	    }
+	});
+})();
+</script>
+</polymer-element>

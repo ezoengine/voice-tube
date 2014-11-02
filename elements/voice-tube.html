@@ -46,7 +46,7 @@
 			document.addEventListener('google-youtube-ready',function(){
 				$.each(my.captions.en,function(i){
 					my.captions.en[i].text = my.captions.en[i].text
-					.replace(/[&#39;]|[’]/g,"'");
+					.replace(/&#39;/g,"'").replace(/’/g,"'");
 					my.captions.en[i].cn = '';
 					if(my.captions.hasOwnProperty('zh-Hant')){
 						my.captions.en[i].cn = my.captions['zh-Hant'][i].text;

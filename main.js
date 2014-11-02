@@ -1,25 +1,18 @@
-var study = {};
-var username = '';
+var study = {
+  name: "The Power to Create",
+  username: "marty",
+  vid: "17821",
+  youtubeid: "lZgjpuFGb_8"
+};
 var db = new Firebase("https://voice-tube.firebaseio.com/");
-
-function clearDB(){
-	var sentList = v.info();
-	var initObj = {};
-	initObj[username] = {};
-	initObj[username][study.youtubeid] = {vid:study.vid};
-	db.set(initObj);
-	console.log('clearDB',initObj);
-}
 
 function updateSentence(sentObj){
 	var saveObj = {};
-	var sentences = db.child(username+"/"+study.youtubeid+"/sentences");
+	var sentences = db.child(study.username+"/"+study.youtubeid+"/sentences");
 	sentences.once('value',function(obj){
 		if(obj.val() != null){
 			saveObj = obj.val();
 		}
-		qq = saveObj;
-
 		var key = 'idx'+(sentObj.idx<10? '0':'')+sentObj.idx;
 		if(!saveObj.hasOwnProperty(key)){
 			saveObj[key] = [];
@@ -39,8 +32,6 @@ function insertVoiceTube(vid,youtubeid,exam){
 	"' size='32'></voice-tube>";
 }
 
-
-
 var User = function(name,info) {
   var my = this;
   my.name = name;
@@ -51,7 +42,6 @@ var User = function(name,info) {
   	var someday = new Date(timestamp).toDateString();
   	return today == someday;
   }
-
   return {
   	videos:function(){
   		return Object.keys(my.info);
@@ -64,7 +54,7 @@ var User = function(name,info) {
   				var sentences = my.info[videos[i]]['sentences'];
   				amt += Object.size(sentences);
   			}
-  		return amt;
+  		  return amt;
   		}else{
 	  		if(my.info.hasOwnProperty(youtubeid)){
 	  			return Object.keys(my.info[youtubeid].sentences);
@@ -73,6 +63,32 @@ var User = function(name,info) {
 	  		}
   		}
   	},
+    /**
+    影片學習進度
+    每個句子的熟悉度
+    各句子中學習的單字
+    **/
+    videoInfo: function(video){
+      var vid = video.vid;
+      var youtubeid = video.youtubeid;
+      var sentenceData = JSON.parse(localStorage.getItem(vid));
+      var total = sentenceData.en.length;
+      var accmu = this.sentences(youtubeid).length;
+      var progress = parseInt(accmu*1000.0/total)/10.0;
+      var sentenceKeys = my.info[youtubeid]['sentences'];
+      sentenceKeys = Object.keys(sentenceKeys);
+      var rtnSentencesInfo = [];
+      for(var i=0;i<sentenceKeys.length;i++){
+        var key = sentenceKeys[i];
+        var obj = this.sentenceInfo(youtubeid,key);
+        obj['idx'] = parseInt(key.substr(3))+1;
+        rtnSentencesInfo.push(obj);
+      }
+      return {
+        progress: progress,
+        sentences: rtnSentencesInfo
+      };
+    },
   	sentenceInfo: function(youtubeid,idx){
   		var rawInfo = my.info[youtubeid]['sentences'][idx];
   		var practiceTimesKeys = Object.keys(rawInfo);

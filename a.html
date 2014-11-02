@@ -23,7 +23,7 @@
 		</div>
 
 		<div id='selectRange' style='margin:0 auto;width:600px'>
-			<div layout horizontal style='font-size:2em;margin-top:300px' center>
+			<div layout horizontal style='font-size:2em;' center>
 		      <div>
 		      <input id='srange' value='1' style='width:150px;text-align:center;font-size:2em'>
 		      </div>
@@ -73,15 +73,17 @@
 			});
 
 			addEventListener('user-card-click',function(e){
-				username = e.detail;
+				study.username = e.detail;
 				$('#cards').fadeOut(function(){
 					$('#videos').fadeIn();
 				});
 			});
 
 			addEventListener('video-card-click',function(e){
+				var username = study.username;
 				study = e.detail;
-				study.exam = '1..5';
+				study.username = username;
+				console.log('study',study);
 				$('#videos').fadeOut(function(){
 					$('#selectRange').fadeIn();
 				});
