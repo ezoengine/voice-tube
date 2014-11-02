@@ -1,0 +1,44 @@
+<link rel="import" href="user-card.html">
+<polymer-element name="user-card-list" verify attributes=''>
+<template>
+	<div id='cards' vertical layout center-justified>
+		<div layout horizontal center-justified>
+			<template id='tmpl' repeat='{{user in users}}'>
+				<user-card name='{{user.name}}' today='{{user.today}}' total='{{user.total}}' video='{{user.video}}' sentence='{{user.sentence}}'>
+					<img src="{{user.image}}">
+				</user-card>
+			</template>
+		</div>
+	</div>
+</template>
+<script>
+(function(){
+	Polymer({
+		ready:function(){
+			var my = this;
+			db.once('value',function(obj){
+				var info = obj.val();
+				var todaySpendTime = 0;
+				var totalSpendTime = 0;
+				var studyWordFromSentence = [];
+				var users = [];
+				var userList = Object.keys(info);
+				for(var i=0;i<userList.length;i++){
+					var name = userList[i];
+					var user = new User(name,info[name]);
+					users.push({
+						name: name,
+						image: info[name].image,
+						today: user.spendTime().today,
+						total: user.spendTime().total,
+						video: user.videos().length-1,
+						sentence: user.sentences()
+					});
+				}
+				my.users = users;
+			});
+	    }
+	});
+})();
+</script>
+</polymer-element>

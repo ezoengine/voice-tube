@@ -1,6 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="user-card" verify attributes='name today total words'>
+<polymer-element name="user-card" verify attributes='name today total words sentence video'>
 <template>
 	<link rel='stylesheet' href="user-card.css">
  	<div class="card" on-click='{{click}}'>
@@ -13,7 +13,7 @@
       <div class='fields'>
         <div horizontal layout class='field' >
           <div class='name' flex>學習句子</div>
-          <div class='val'>{{sentences}}</div>
+          <div class='val'>{{sentence}}</div>
         </div>
         <div horizontal layout class='field' >
           <div class='name' flex>學習影片</div>

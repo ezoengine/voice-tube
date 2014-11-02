@@ -1,6 +1,6 @@
 .escapechar {
 	float:left;
-	margin-top:{{size/3}}px;
+	margin-top:{{size/3-1}}px;
 	font-size:{{size}}px;
 	line-height:{{size}}px;
 }

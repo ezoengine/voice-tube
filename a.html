@@ -1,40 +1,25 @@
 <html>
 	<head>
+		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono">
+		<style>body{font: 'Droid Sans Mono', sans-serif;}</style>
 		<script src="bower_components/platform/platform.js"></script>
 		<link rel='stylesheet' href="a.css">
-		<link rel="import" href="elements/user-card.html">
-		<link rel="import" href="elements/video-card.html">
+		<link rel="import" href="elements/user-card-list.html">
+		<link rel="import" href="elements/video-card-list.html">
 		<link rel="import" href="elements/voice-tube.html">
 		<script src="elements/jquery-2.1.1.min.js"></script>
 		<script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
-		<script src="api.js"></script>
+		<script src="jsUtils.js"></script>
+		<script src="main.js"></script>
 	</head>
 	<body>
 		<div id='cards' vertical layout center-justified>
-			<div layout horizontal center-justified>
-			<user-card name='Marty' today='432' total='700' >
-				<img src="https://lh3.googleusercontent.com/jIWmpd9rz0CdGrrds9vqg1pMN2TG4lW5Og2Ir-qH4Ymo=s422-p-no">
-			</user-card>
-			<user-card name='NaNa' today='432' total='1999' >
-				<img src="https://lh4.googleusercontent.com/-IzSLR5AY4w4/U9NSsZeY5AI/AAAAAAABahQ/EIiLkWIpM0I/w1108-h1476-no/IMG_20140726_150217.jpg">
-			</user-card>
-			<user-card name='NiNa' today='432' total='999' >
-				<img src="https://lh6.googleusercontent.com/NKSNP_VEHA4SFj3KIvaN1wS-ptkXIliyKmO-IdAMKNdk=s422-p-no">
-			</user-card>
-			<user-card name='Lynn' today='432' total='9999' >
-				<img src="https://lh4.googleusercontent.com/_HQc9_t-fxtk2vwcIgfYF-svp6w7xt_DJENRRE8nNXIi=s422-p-no">
-			</user-card>
-			</div>
+			<user-card-list id='uc'></user-card-list>
 		</div>
 
 		<div id='videos' style='text-align:center; position: relative;top: 30%;transform: translateY(-50%);'>
 			<div style='height:350px'></div>
-			<video-card name='The Power to Create' vid='17821' youtubeid='lZgjpuFGb_8'>
-			</video-card>
-			<video-card name='《Hello!kids》第1課' vid='9947' youtubeid='q1VN-UxoN6U'>
-			</video-card>
-			<video-card name='《Hello!kids》第2課' vid='10294' youtubeid='ciobzXmWppY'>
-			</video-card>
+			<video-card-list></video-card-list>
 		</div>
 
 		<div id='selectRange' style='margin:0 auto;width:600px'>
@@ -59,15 +44,14 @@
 				<div style="width:300px;text-align:center;margin:-60px 0 0 0">=</div>
 				</div>
 			</div>
-			<div id='ctx' style='margin:0 100px 0 100px'>
-				
-			</div>
+			<div id='ctx' style='margin:0 100px 0 100px'></div>
 			<div style='font-size:0.5em'>
 				<div id='sc'></div>
 				<div id='result'></div>
 				<div id='speak'></div>
 			</div>
 		</div>
+
 		<script>
 			var range = localStorage.getItem('selectRange');
 			if(range!=null){

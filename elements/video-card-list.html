@@ -1,0 +1,28 @@
+<link rel="import" href="video-card.html">
+<polymer-element name="video-card-list" verify attributes=''>
+<template>
+	<link rel='stylesheet' href="video-card-list.css">
+	<div>
+		<template id='tmpl' repeat='{{v in videos}}'>
+			<video-card name='{{v.name}}' vid='{{v.vid}}' youtubeid='{{v.youtubeid}}'>
+			</video-card>
+		</template>
+	</div>
+</template>
+<script>
+(function(){
+	Polymer({
+		ready:function(){
+			var videos = [
+			{'vid': '17440','youtubeid': '4YOwEqGykDM','name':'Your Brain On Coffee'},
+			{'vid': '17821','youtubeid': 'lZgjpuFGb_8','name':'The Power to Create'},
+			{'vid': '17129','youtubeid': 'GLAMS7OloEM','name':'How Your Brain Learns'},
+			{'vid': '9947','youtubeid': 'q1VN-UxoN6U','name':'《Hello!kids》第1課'},
+			{'vid': '10294','youtubeid': 'ciobzXmWppY','name':'《Hello!kids》第2課'}
+			];
+			this.videos = videos;
+	    }
+	});
+})();
+</script>
+</polymer-element>
