@@ -95,10 +95,10 @@ var User = function(name,info) {
   		var practiceTimes = practiceTimesKeys.length;
   		var spendTime = 0,todaySpendTime = 0;
   		var wrongAns = [];
+      var corrects = 0,total = 0;
   		for(var i in practiceTimesKeys){
   			var key = practiceTimesKeys[i];
   			var idx = rawInfo[key];
-  			var corrects = 0,total = 0;
   			spendTime += idx.spendTime;
   			corrects += idx.corrects;
   			total += idx.total;
@@ -114,7 +114,8 @@ var User = function(name,info) {
   			totalSpendTime: spendTime,
   			todaySpendTime: todaySpendTime,
   			wrongAns: wrongAns,
-  			score: parseInt((corrects*1.0/total)*10000)/100.0
+  			score: parseInt(corrects*10000.0/total)/100.0,
+        practiceTimes: practiceTimes
   		}
   	},
     spendTime:function(){

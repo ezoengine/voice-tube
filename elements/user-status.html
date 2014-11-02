@@ -2,17 +2,35 @@
 <polymer-element name="user-status" verify attributes=''>
 <template>
 	<div layout vertical>
-	<div>目前進度: {{progress}}</div>
+	<div>目前進度: {{progress}} %</div>
 		<template repeat='{{s in sentences}}'>
 			<div layout horizontal>
-				<div flex>{{s.idx}}</div>
-				<div flex>{{s.score}}</div>
+				<div style='width:70px;'>{{s.idx<10? '0'+s.idx : s.idx}}</div>
+				<div flex >{{s.score}}%</div>
+				<div flex>{{s.totalSpendTime|convert}}</div>
+				<div style='width:70px;'>{{s.practiceTimes}}</div>
+				<div flex four>{{s.wrongAns}}</div>
 			</div>
 		</template>
 	</div>
 </template>
 <script>
 (function(){
+    function timeConvert(n){
+    	var sec = parseInt(n);
+    	var min = sec>60 ? parseInt(sec/60): 0;
+    	var hour = min>60 ? parseInt(min/60): 0;
+    	if(hour>0){
+    		return hour + '小時' + min%60 +'分鐘';
+    	}
+    	if(min>0){
+    		return min + '分' + sec%60 +'秒';
+    	}
+    	return min + '分' + sec +'秒';
+    };
+	PolymerExpressions.prototype.convert = function(input) {
+  		return timeConvert(input);
+	};
 	Polymer({
 		ready:function(){
 			
@@ -22,6 +40,7 @@
 	    	this.progress = info.progress;
 	    	this.sentences = info.sentences;
 	    }
+
 	});
 })();
 </script>

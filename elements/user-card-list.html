@@ -18,6 +18,7 @@
 			var my = this;
 			db.once('value',function(obj){
 				var info = obj.val();
+				my.db = info;
 				var todaySpendTime = 0;
 				var totalSpendTime = 0;
 				var studyWordFromSentence = [];
@@ -37,6 +38,9 @@
 				}
 				my.users = users;
 			});
+	    },
+	    info:function(){
+	    	return this.db;
 	    }
 	});
 })();

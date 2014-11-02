@@ -7,6 +7,7 @@
 		<link rel="import" href="elements/user-card-list.html">
 		<link rel="import" href="elements/video-card-list.html">
 		<link rel="import" href="elements/voice-tube.html">
+		<link rel="import" href="elements/user-status.html">
 		<script src="elements/jquery-2.1.1.min.js"></script>
 		<script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
 		<script src="jsUtils.js"></script>
@@ -22,8 +23,9 @@
 			<video-card-list></video-card-list>
 		</div>
 
-		<div id='selectRange' style='margin:0 auto;width:600px'>
-			<div layout horizontal style='font-size:2em;' center>
+		<div id='selectRange' style='margin:0 auto;'>
+			<user-status id='userStatus' style="font-size:1.2em;"></user-status>
+			<div layout horizontal style='font-size:2em;width:600px;margin-top:50px' center>
 		      <div>
 		      <input id='srange' value='1' style='width:150px;text-align:center;font-size:2em'>
 		      </div>
@@ -83,9 +85,13 @@
 				var username = study.username;
 				study = e.detail;
 				study.username = username;
-				console.log('study',study);
+				//console.log('study',study);
 				$('#videos').fadeOut(function(){
 					$('#selectRange').fadeIn();
+					var info = uc.info();
+					var user = new User(username,info[username]);
+					info = user.videoInfo(study);
+					userStatus.info(info);					
 				});
 			});
 
