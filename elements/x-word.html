@@ -89,6 +89,7 @@
 				};
 			});
 			this.$.i.addEventListener('keyup',function(e){
+				//console.log('keyCode',e.keyCode);
 				var val = self.$.i.value;
 				if(val.indexOf(' ')>-1){
 					var ele = self.$.i;
@@ -103,7 +104,7 @@
 					$(ele).attr('placeholder',self.word);
 					self.speak();
 					return;
-		        }else if(e.keyCode==188 /*,*/ || e.keyCode==91 /*Mac CMD*/){
+		        }else if(e.keyCode==188 /*,*/ || e.keyCode==18 /*,*/ || e.keyCode==91 /*Mac CMD*/){
 					self.speakTimes++;
 					self.$.i.value = val.replace(/,/g,'');
 					if(self.sound){
@@ -116,7 +117,6 @@
 				if(self.getAttribute('verify')!=null){
 					self.validate();
 				}
-				//console.log('keyCode',e.keyCode,'valLen:'+val.length);
 				if(self.word.length == val.length && 
 					e.keyCode!=9 /*tab*/ && e.keyCode!=16 /*shift*/){
 					self.focusNext();
