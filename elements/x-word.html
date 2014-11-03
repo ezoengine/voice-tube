@@ -93,6 +93,7 @@
 				if(self.getAttribute('verify')!=null){
 					self.validate();
 				}
+				//console.log('keyCode',e.keyCode,'valLen:'+val.length);
 				if(self.word.length == val.length && 
 					e.keyCode!=9 /*tab*/ && e.keyCode!=16 /*shift*/){
 					self.focusNext();
@@ -113,6 +114,8 @@
 					$(ele).val('');
 					$(ele).attr('placeholder',self.word);
 					self.speak();
+		        } else if(val.indexOf(' ')>-1){
+					$(ele).val(val.replace(' ',''));
 		        }
 			});
 		},
@@ -164,8 +167,17 @@
 			if(ele) ele.focus();
 		},
 		focusPrev:function(){
-			var ele = $(this).prev('x-word');
-			if(ele) ele.focus();
+			var ele = $(this).prev();
+			while(ele.length>0){
+				var xword = ele[0];
+				if(xword.tagName === 'X-WORD'){
+					if(!xword.isCorrect){
+						ele.focus();
+						break;
+					}
+				}
+				ele = ele.prev();
+			}
 		}
 	});
 })();
