@@ -90,6 +90,29 @@
 			});
 			this.$.i.addEventListener('keyup',function(e){
 				var val = self.$.i.value;
+				if(val.indexOf(' ')>-1){
+					var ele = self.$.i;
+					$(ele).val(val.replace(/\s/g,''));
+					return;
+		        }else if(val.indexOf('.')>-1){
+					self.seeAns = true;
+					var ele = self.$.i;
+					$(ele).val(val.replace('.',''));
+					$(ele).css('color','#f78');
+					$(ele).val('');
+					$(ele).attr('placeholder',self.word);
+					self.speak();
+					return;
+		        }else if(e.keyCode==188 /*,*/ || e.keyCode==91 /*Mac CMD*/){
+					self.speakTimes++;
+					self.$.i.value = val.replace(/,/g,'');
+					if(self.sound){
+						self.speak();
+					}
+					self.fire('x-word-sound',self.word);
+					return;
+				} 
+				//
 				if(self.getAttribute('verify')!=null){
 					self.validate();
 				}
@@ -99,24 +122,7 @@
 					self.focusNext();
 				} else if(val.length==0 && e.keyCode==8){
 					self.focusPrev();
-				} else if(e.keyCode==188 /*,*/ || e.keyCode==91 /*Mac CMD*/){
-					self.speakTimes++;
-					self.$.i.value = val.replace(/,/g,'');
-					if(self.sound){
-						self.speak();
-					}
-					self.fire('x-word-sound',self.word);
-				} else if(val.indexOf('.')>-1){
-					self.seeAns = true;
-					var ele = self.$.i;
-					$(ele).val(val.replace('.',''));
-					$(ele).css('color','#f78');
-					$(ele).val('');
-					$(ele).attr('placeholder',self.word);
-					self.speak();
-		        } else if(val.indexOf(' ')>-1){
-					$(ele).val(val.replace(' ',''));
-		        }
+				} 
 			});
 		},
 		value:function(val){
