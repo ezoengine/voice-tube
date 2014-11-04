@@ -55,7 +55,9 @@
 			this.addEventListener('x-word-check',function(e){
 				my.refreshState();
 				if(my.isCompleted){
-				this.fire('x-sentence-completed',{key:my.idx,val:my});
+					this.fire('x-sentence-completed',{key:my.idx,val:my});
+				}else{
+					my.focus();
 				}
 			});
 			this.addEventListener('x-word-find-prev-focus',function(e){
@@ -63,7 +65,13 @@
 			});
 		},
 		focus:function(){
-			this.wordList()[0].focus();
+			var list = this.wordList();
+			for(var i=0;i<list.length;i++){
+				if(list[i].isInputState){
+					list[i].focus();
+					return;					
+				}
+			}
 		},
 		focusLastWord:function(){
 			var list = this.wordList();
