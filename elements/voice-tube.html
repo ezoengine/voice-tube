@@ -50,7 +50,7 @@
 			document.addEventListener('google-youtube-ready',function(){
 				$.each(my.captions.en,function(i){
 					my.captions.en[i].text = my.captions.en[i].text
-					.replace(/&#39;/g,"'").replace(/’/g,"'");
+					.replace(/&#39;|’/g,"'");
 					my.captions.en[i].cn = '';
 					if(my.captions.hasOwnProperty('zh-Hant')){
 						my.captions.en[i].cn = my.captions['zh-Hant'][i].text;
@@ -76,6 +76,17 @@
 			// register sentence speak event
 			this.addEventListener('x-sentence-sound',function(e){
 				my.play(e.detail);
+			});
+			this.addEventListener('x-sentence-find-prev-focus',function(e){
+				var idx = e.detail.key - 1;
+				var senList = my.sentenceList();
+				for(var i=0;i<senList.length;i++){
+					if(senList[i].idx === idx){
+						senList[i].focusLastWord();
+						return;
+					}
+				}
+				console.log('not found');
 			});
 			// 
 			document.addEventListener('x-sentence-completed',function(e){

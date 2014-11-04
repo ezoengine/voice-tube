@@ -1,5 +1,4 @@
 <link rel="import" href="x-word.html">
-
 <polymer-element name="x-sentence" verify attributes='size sound idx'>
 <template>
 	<div id='main'>
@@ -59,9 +58,23 @@
 				this.fire('x-sentence-completed',{key:my.idx,val:my});
 				}
 			});
+			this.addEventListener('x-word-find-prev-focus',function(e){
+				this.fire('x-sentence-find-prev-focus',{key:my.idx,val:my});
+			});
 		},
 		focus:function(){
 			this.wordList()[0].focus();
+		},
+		focusLastWord:function(){
+			var list = this.wordList();
+			var i=list.length-1;
+			for(;i>=0;i--){
+				if(list[i].isInputState){
+					list[i].focus();
+					return;					
+				}
+			}
+			this.fire('x-sentence-find-prev-focus',{key:this.idx,val:this});
 		},
 		refreshState:function(){
 			var wordList = this.$.main.querySelectorAll('x-word');

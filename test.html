@@ -6,10 +6,17 @@
 		<link rel="import" href="elements/x-sentence.html">
 	</head>
 	<body>
+		<button onclick="test()">Test</button>
 		1.這是一本書
-		<x-sentence size='32'>
+		<x-sentence id='xs' size='32'>
 			this is a book
 		</x-sentence>
+		<script>
+			function test(){
+				xs.focusLastWord();
+			}
+
+		</script>
 	</body>
 </html>
 

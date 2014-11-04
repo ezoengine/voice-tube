@@ -70,11 +70,15 @@ var User = function(name,info) {
     **/
     videoInfo: function(video){
       var vid = video.vid;
+      if(!my.info.hasOwnProperty('youtubeid')){
+        return {};
+      }
       var youtubeid = video.youtubeid;
       var sentenceData = JSON.parse(localStorage.getItem(vid));
       var total = sentenceData.en.length;
       var accmu = this.sentences(youtubeid).length;
       var progress = parseInt(accmu*1000.0/total)/10.0;
+      window.qq = my;
       var sentenceKeys = my.info[youtubeid]['sentences'];
       sentenceKeys = Object.keys(sentenceKeys);
       var rtnSentencesInfo = [];
