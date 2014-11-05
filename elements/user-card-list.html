@@ -29,12 +29,15 @@
 					var user = new User(name,info[name]);
 					users.push({
 						name: name,
-						image: info[name].image,
+						image: info[name].info.image,
 						today: user.spendTime().today,
 						total: user.spendTime().total,
 						video: user.videos().length-1,
 						sentence: user.sentences()
 					});
+					if(i==3){
+						console.log(user.studyHistory());
+					}
 				}
 				my.users = users;
 			});
