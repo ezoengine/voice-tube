@@ -33,6 +33,7 @@ function insertVoiceTube(vid,youtubeid,exam){
 }
 
 var User = function(name,info) {
+  throw "123";
   var my = this;
   my.name = name;
   my.image = info.image;
@@ -63,6 +64,10 @@ var User = function(name,info) {
 	  		}
   		}
   	},
+    studyHistory:function(){
+      var videos = this.videos();
+      console.log(videos);
+    },
     /**
     影片學習進度
     每個句子的熟悉度
