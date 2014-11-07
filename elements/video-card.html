@@ -1,5 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <script src="jquery-2.1.1.min.js"></script>
+<script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
 <polymer-element name="video-card" verify attributes='name vid youtubeid'>
 <template>
 	<link rel='stylesheet' href="video-card.css">
@@ -14,15 +15,50 @@
 </template>
 <script>
 (function(){
+	var cdn = new Firebase("https://voice-tube-cdn.firebaseio.com/");
+	var vDB = cdn.child("videos");
+
+	function getVideo(vid,doneCallback){
+	console.log('getVideo',vid);
+	  var vidInfo = localStorage.getItem(vid);
+	  if(vidInfo){
+	    doneCallback(JSON.parse(vidInfo));
+	    return ;
+	  }
+	  cdn.child("videos/"+vid).once('value',function(obj){
+	    vidInfo = obj.val();
+	    if(typeof vidInfo === 'undefined' || vidInfo == null){
+	      $.ajax({dataType: 'jsonp',
+	              url: 'http://cdn.voicetube.tw/assets/captions/'+vid+'.js'})
+	        .always(function(){
+	          var obj = {};
+	          obj[vid] = captions;
+	          cdn.child("videos").update(obj,function(){
+	            if(typeof doneCallback ==='function'){
+	              localStorage.setItem(vid,JSON.stringify(captions));
+	              doneCallback(captions);
+	            }
+	          });
+	      });
+	    } else{
+	      if(typeof doneCallback ==='function'){
+	        localStorage.setItem(vid,JSON.stringify(vidInfo));
+	        doneCallback(vidInfo);
+	      }
+	    }
+	  });
+	}
+
 	Polymer({
 		seqAmt: 0,
 		ready:function(){
 			var my = this;
 			this.$.img.src = 'http://img.youtube.com/vi/'+this.youtubeid+'/0.jpg';
-			this.load(function(){
-				my.seqAmt = my.captions.en.length;
+			getVideo(this.vid,function(captions){
+				console.log('getVideo',captions);
+				my.captions = captions;
+				my.seqAmt = captions.en.length;
 			});
-
 	    },
 	    click:function(e){
 	    	this.fire('video-card-click',{
@@ -30,22 +66,6 @@
 	    		youtubeid: this.youtubeid,
 	    		name: this.name
 	    	});
-	    },
-	    load:function(callback){
-	    	var my = this;
-	    	if(localStorage.getItem(my.vid)){
-				my.captions = JSON.parse(localStorage.getItem(my.vid));
-				callback();
-			}else{
-			$.ajax(
-				{dataType: 'jsonp',
-					 url: 'http://cdn.voicetube.tw/assets/captions/'+my.vid+'.js'})
-				.always(function(e){
-					localStorage.setItem(my.vid,JSON.stringify(captions));
-					my.captions = captions;
-					callback();
-				});
-			}
 	    }
 	});
 })();
