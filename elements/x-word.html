@@ -158,6 +158,7 @@
 			var txt = document.createElement('span');
 			txt.style.marginTop = '7px';
 			txt.style.width = this.$.ctx.style.width;
+			txt.style.lineHeight = (this.size+4)+'px';
 			if(this.isCompleted || this.seeAns){
 				$(txt).addClass('seeAns');
 				this.isCorrect = false;
