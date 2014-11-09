@@ -65,8 +65,27 @@ var User = function(name,info) {
   		}
   	},
     studyHistory:function(){
-      var videos = this.videos();
-      console.log(videos);
+      var history = {}
+      this.eachSentence(function(youtubeid,sIdx,sInfo){
+        var studyInfo = {};
+        var studyTime = sInfo['startTime'];
+        for(i=0;i<studyTime.length;i++){
+          var dateKey = getDate(studyTime[i]);
+          if(!history.hasOwnProperty(dateKey)){
+            history[dateKey] = {
+              studyTimes: {}, spendTime: 0 , sentenceAmt:0
+            }
+          }
+          studyInfo = history[dateKey];
+          if(!studyInfo.studyTimes.hasOwnProperty(youtubeid+'_'+sIdx)){
+            studyInfo.studyTimes[youtubeid+'_'+sIdx] = 0;
+            studyInfo.spendTime += sInfo.totalSpendTime;
+            studyInfo.sentenceAmt += 1;
+          }
+          studyInfo.studyTimes[youtubeid+'_'+sIdx] += 1;
+        };
+      });
+      return history;
     },
     /**
     影片學習進度
@@ -101,7 +120,7 @@ var User = function(name,info) {
   		var rawInfo = my.videos[youtubeid]['sentences'][idx];
   		var practiceTimesKeys = Object.keys(rawInfo);
   		var practiceTimes = practiceTimesKeys.length;
-  		var spendTime = 0,todaySpendTime = 0;
+  		var spendTime = 0,todaySpendTime = 0,startTime = [];
   		var wrongAns = [];
       var corrects = 0,total = 0;
   		for(var i in practiceTimesKeys){
@@ -116,9 +135,11 @@ var User = function(name,info) {
   			if(isToday(idx.startTime)){
   				todaySpendTime += idx.spendTime;
   			}
+        startTime.push(idx.startTime);
   		}
   		spendTime = parseInt(spendTime*1000)/1000.0;
   		return {
+        startTime: startTime,
   			totalSpendTime: spendTime,
   			todaySpendTime: todaySpendTime,
   			wrongAns: wrongAns,
@@ -126,22 +147,36 @@ var User = function(name,info) {
         practiceTimes: practiceTimes
   		}
   	},
+    eachSentence:function(callback){
+      var videoKeys = this.videos();
+      var totalSpendTime = 0,todaySpendTime = 0;
+      for(var i in videoKeys){
+        var videoKey = videoKeys[i];
+        var sentenceKeys = this.sentences(videoKey);
+        for(var j in sentenceKeys){
+          var sentenceKey = sentenceKeys[j];
+          var sentenceInfo = this.sentenceInfo(videoKey,sentenceKey);
+          if(typeof callback == 'function'){
+            callback(videoKey,sentenceKey,sentenceInfo);
+          }
+          totalSpendTime += sentenceInfo.totalSpendTime;
+          todaySpendTime += sentenceInfo.todaySpendTime;
+        }
+      }
+      return {
+      total:totalSpendTime,
+      today:todaySpendTime
+      };
+    },
     spendTime:function(){
-    	var videoKeys = this.videos();
     	var totalSpendTime = 0,todaySpendTime = 0;
-    	for(var i in videoKeys){
-    		var videoKey = videoKeys[i];
-    		var sentenceKeys = this.sentences(videoKey);
-    		for(var j in sentenceKeys){
-    			var sentenceKey = sentenceKeys[j];
-    			var sentenceInfo = this.sentenceInfo(videoKey,sentenceKey);
+      this.eachSentence(function(videoKey,sentenceKey,sentenceInfo){
     			totalSpendTime += sentenceInfo.totalSpendTime;
     			todaySpendTime += sentenceInfo.todaySpendTime;
-    		}
-    	}
+    	});
     	return {
-			total:totalSpendTime,
-			today:todaySpendTime
+  			total:totalSpendTime,
+  			today:todaySpendTime
     	};
     }
   }
