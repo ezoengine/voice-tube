@@ -19,7 +19,7 @@
 	var vDB = cdn.child("videos");
 
 	function getVideo(vid,doneCallback){
-	console.log('getVideo',vid);
+	//console.log('getVideo',vid);
 	  var vidInfo = localStorage.getItem(vid);
 	  if(vidInfo){
 	    doneCallback(JSON.parse(vidInfo));

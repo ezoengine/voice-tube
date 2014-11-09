@@ -1,6 +1,8 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="c3-timeseries.html">
 <polymer-element name="user-status" verify attributes=''>
 <template>
+	<c3-timeseries id='c3t'></c3-timeseries>
 	<div layout vertical>
 	<div>目前進度: {{progress}} %</div>
 		<template repeat='{{s in sentences}}'>
@@ -38,6 +40,19 @@
 	    info:function(info){
 	    	this.progress = info.progress;
 	    	this.sentences = info.sentences;
+	    },
+	    renderChart:function(user){
+			var info = user.studyHistory();
+			var columns = [[],['time(min)'],['sentence']]
+			for(var key in info){
+				columns[0].push(key);
+				var min = parseInt(info[key].spendTime/60);
+				columns[1].push(min);
+				columns[2].push(info[key].sentenceAmt);
+			}
+			this.$.c3t.render(columns);
+
+	    	
 	    }
 
 	});

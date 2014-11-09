@@ -27,6 +27,7 @@
 				for(var i=0;i<userList.length;i++){
 					var name = userList[i];
 					var user = new User(name,info[name]);
+					window[name] = user;
 					users.push({
 						name: name,
 						image: info[name].info.image,
@@ -35,11 +36,11 @@
 						video: user.videos().length,
 						sentence: user.sentences()
 					});
-					if(i==3){
-						console.log(user.studyHistory());
-					}
 				}
 				my.users = users;
+				if(typeof marty == 'object'){
+					marty.studyHistory();
+				}
 			});
 	    },
 	    info:function(){
