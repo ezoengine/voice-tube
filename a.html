@@ -17,7 +17,8 @@
 		
 		<div id='cards' vertical layout center-justified>
 			<user-card-list id='uc'></user-card-list>
-			<c3-timeseries id='c3t'></c3-timeseries>
+			<br>
+			<c3-timeseries id='c3t' width='60%'></c3-timeseries>
 		</div>
 
 		<div id='videos' style='text-align:center; position: relative;top: 30%;transform: translateY(-50%);'>
@@ -57,8 +58,8 @@
 		</div>
 
 		<script>
-		function gogogo(){
-			var info = marty.studyHistory();
+		function showUserChart(username){
+			var info = window[username].studyHistory();
 			var columns = [[],['time(min)'],['sentence']]
 			for(var key in info){
 				columns[0].push(key);
@@ -67,10 +68,7 @@
 				columns[2].push(info[key].sentenceAmt);
 			}
 			c3t.render(columns);
-			console.log(columns);
 		}
-		setTimeout(gogogo,2500);
-
 
 		//window.onbeforeunload = function() { return "You work will be lost."; };
 		//c3t.columns = '[["2013/01/01", "2013/01/02"],["data1", 30, 200],["data2", 310, 100]]'
@@ -98,6 +96,12 @@
 				$('#cards').fadeOut(function(){
 					$('#videos').fadeIn();
 				});
+			});
+
+			addEventListener('user-card-onHovered',function(e){
+				var username = e.detail;
+				console.log('hover',username);
+				showUserChart(username);
 			});
 
 			addEventListener('video-card-click',function(e){
