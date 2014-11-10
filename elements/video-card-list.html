@@ -11,29 +11,33 @@
 </template>
 <script>
 (function(){
+	var cdn = new Firebase("https://voice-tube-cdn.firebaseio.com/");
+	var vDB = cdn.child("videos");
 	Polymer({
+		videos:[],
 		ready:function(){
-			var videos = [
-			{'vid': '17440','youtubeid': '4YOwEqGykDM','name':'Your Brain On Coffee'},
-			{'vid': '17821','youtubeid': 'lZgjpuFGb_8','name':'The Power to Create'},
-			{'vid': '17129','youtubeid': 'GLAMS7OloEM','name':'How Your Brain Learns'},
-			{'vid': '18435','youtubeid': '89shevn24L8','name':'Can You Erase Bad Memories?'},
-			{'vid': '4004','youtubeid': 'LPD0z6K0VQY','name':'Rocky Balboa - Inspirational'},
-			{'vid': 'dodo','youtubeid': '36b9ox8iF24','name':'從嘟嘟鳥看生物滅絕'},
-			{'vid': 'babylion','youtubeid': '7jYPfOL6AuI','name':'可愛的動物寶寶：獅虎犬一家'},
-			{'vid': 'anatomylesson','youtubeid': 'B9cbEw4SHc0','name':'林布蘭：〈尼古拉斯·杜爾博士的解剖學課〉'},
-			{'vid': 'how_look_good','youtubeid': '9PSOSNqHgwA','name':'How to Look Great in Photographs'},
-			/*
-			{'vid': '','youtubeid': '','name':''},
-			*/
-			{'vid': 'cat_101','youtubeid': '8z5jTGFBdZw','name':'貓咪入門班：美國短毛貓'},
-			{'vid': '13582','youtubeid': 'P4U0uLBATZI','name':'你知道the的8個規則嗎？'},
-			{'vid': '9947','youtubeid': 'q1VN-UxoN6U','name':'《Hello!kids》第1課'},
-			{'vid': '10294','youtubeid': 'ciobzXmWppY','name':'《Hello!kids》第2課'},
-			{'vid': '10295','youtubeid': 'usIOW-VmNII','name':'《Hello!kids》第3課'}
-			];
-
-			this.videos = videos;
+			var my = this;
+			var videoList = ["17440","17821","17129","18435","4004","dodo","babylion","anatomylesson","how_look_good","cat_101","13582","9947","10294","10295"];
+			//get All Videos
+			vDB.once('value',function(obj){
+				var videoData = obj.val();
+				for(var i in videoList){
+					var vid = videoList[i];
+					var videoInfo = videoData[vid].info;
+					my.videos.push(videoInfo);
+				}
+			});
+	    },
+	    list:function(callback){
+			vDB.once('value',function(obj){
+				console.log(obj.val());
+			});
+	    },
+	    update:function(vid,info,callback){
+	    	var infoNode = vDB.child(vid+'/info');
+			infoNode.update(info,function(){
+				console.log('update ',vid,'done.');
+    		});
 	    }
 	});
 })();

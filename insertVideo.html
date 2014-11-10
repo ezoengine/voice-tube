@@ -8,7 +8,9 @@
 		<script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
 		<script src="jsUtils.js"></script>
 	</head>
-	<body style="font-size:2em">
+	<body style="font-size:2em;background-color:#000;color:#fff">
+		name: <input type='txt' id='name' value="從嘟嘟鳥看生物滅絕1" style="font-size:2em">
+		<br><br>
 		srt_name: <input type='txt' id='vid' value='dodo' style="font-size:2em">
 		<br><br>
 		youtubeid: <input type='txt' id='youtubeid' value='36b9ox8iF24' style="font-size:2em">
@@ -43,13 +45,13 @@
 		  }
 
 		function main(){
-			var youtubeid = $('#youtubeid').val(), vid = $('#vid').val();
+			var youtubeid = $('#youtubeid').val(), vid = $('#vid').val(), name = $('#name').val();
 			getSrtChinese(vid,function(data){
-				upload(youtubeid,vid,data);
+				upload(name,youtubeid,vid,data);
 			});
 		}
 
-		function upload(youtubeid,vid,srt_chinese){
+		function upload(name,youtubeid,vid,srt_chinese){
 	      $.ajax({
 			  type: "POST",
 			  url: "https://www.hopenglish.com/ajax/render_course_subtitle",
@@ -79,20 +81,25 @@
 			  			text: srt_chinese[key+1]
 			  		});
 			  	}
+		  		video['info'] = {
+		  			name: name,
+		  			youtubeid: youtubeid,
+		  			vid: vid
+		  		};
 	  			upload2Firebase(vid,video);
 			  }
 			});
 	  	};
 
-	      	function upload2Firebase(vid,captions){
-      		  var cdn = new Firebase("https://voice-tube-cdn.firebaseio.com/");
-	          var obj = {};
-	          obj[vid] = captions;
-	          console.log('upload to firebase, name:',vid);
-	          cdn.child("videos").update(obj,function(){
-	            console.log('done.');
-	          });	      		
-	      	}
+      	function upload2Firebase(vid,captions){
+  		  var cdn = new Firebase("https://voice-tube-cdn.firebaseio.com/");
+          var obj = {};
+          obj[vid] = captions;
+          console.log('upload to firebase, name:',vid);
+          cdn.child("videos").update(obj,function(){
+            alert('ok');
+          });	      		
+      	}
 		</script>
 	</body>
 </html>

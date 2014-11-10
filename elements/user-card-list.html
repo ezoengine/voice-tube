@@ -16,7 +16,8 @@
 	Polymer({
 		ready:function(){
 			var my = this;
-			db.once('value',function(obj){
+			var users = db.child("users");
+			users.once('value',function(obj){
 				var info = obj.val();
 				my.db = info;
 				var todaySpendTime = 0;

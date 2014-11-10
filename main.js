@@ -8,7 +8,7 @@ var db = new Firebase("https://voice-tube.firebaseio.com/");
 
 function updateSentence(sentObj){
 	var saveObj = {};
-	var sentences = db.child(study.username+"/videos/"+study.youtubeid+"/sentences");
+	var sentences = db.child("users/"+study.username+"/videos/"+study.youtubeid+"/sentences");
 	sentences.once('value',function(obj){
 		if(obj.val() != null){
 			saveObj = obj.val();

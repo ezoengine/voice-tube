@@ -16,14 +16,14 @@
 	<body class='fontstyle'>
 		
 		<div id='cards' vertical layout center-justified>
-			<user-card-list id='uc'></user-card-list>
+			<user-card-list id='uclist'></user-card-list>
 			<br>
 			<c3-timeseries id='c3t' width='60%'></c3-timeseries>
 		</div>
 
 		<div id='videos' style='text-align:center; position: relative;top: 30%;transform: translateY(-50%);'>
 			<div style='height:350px'></div>
-			<video-card-list></video-card-list>
+			<video-card-list id='vclist'></video-card-list>
 		</div>
 
 		<div id='selectRange' style='margin:0 auto;'>
@@ -100,7 +100,6 @@
 
 			addEventListener('user-card-onHovered',function(e){
 				var username = e.detail;
-				console.log('hover',username);
 				showUserChart(username);
 			});
 
@@ -110,7 +109,7 @@
 				study.username = username;
 				$('#videos').fadeOut(function(){
 					$('#selectRange').fadeIn();
-					var info = uc.info();
+					var info = uclist.info();
 					var user = new User(username,info[username]);
 					info = user.videoInfo(study);
 					userStatus.info(info);
