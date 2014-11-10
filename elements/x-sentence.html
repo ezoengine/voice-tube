@@ -27,13 +27,13 @@
 		}
 	};
 	PolymerExpressions.prototype.isEscapeChar = function(word){
-		return word.length==0 || word.length==1 && ',. ?!":;'.indexOf(word)>=0;
+		return word.length==0 || word.length==1 && ",. ?!\":;(-)—".indexOf(word)>=0;
 	};
 	Polymer({
 		total: 0,
 		size: 32,
 		sound: true,
-		escapeChar:',. ?!":;',
+		escapeChar:",. ?!\":;(-)—",
 		seeAns:[],
 		wrongAns:[],
 		corrects: 0,
