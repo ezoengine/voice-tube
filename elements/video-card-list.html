@@ -1,45 +1,45 @@
 <link rel="import" href="video-card.html">
 <polymer-element name="video-card-list" verify attributes=''>
-<template>
-	<link rel='stylesheet' href="video-card-list.css">
-	<div>
-		<template id='tmpl' repeat='{{v in videos}}'>
-			<video-card name='{{v.name}}' vid='{{v.vid}}' youtubeid='{{v.youtubeid}}'>
-			</video-card>
-		</template>
-	</div>
-</template>
-<script>
-(function(){
-	var cdn = new Firebase("https://voice-tube-cdn.firebaseio.com/");
-	var vDB = cdn.child("videos");
-	Polymer({
-		videos:[],
-		ready:function(){
-			var my = this;
-			var videoList = ["17440","17821","17129","18435","4004","dodo","babylion","anatomylesson","how_look_good","cat_101","13582","9947","10294","10295"];
-			//get All Videos
-			vDB.once('value',function(obj){
-				var videoData = obj.val();
-				for(var i in videoList){
-					var vid = videoList[i];
-					var videoInfo = videoData[vid].info;
-					my.videos.push(videoInfo);
-				}
-			});
-	    },
-	    list:function(callback){
-			vDB.once('value',function(obj){
-				console.log(obj.val());
-			});
-	    },
-	    update:function(vid,info,callback){
-	    	var infoNode = vDB.child(vid+'/info');
-			infoNode.update(info,function(){
-				console.log('update ',vid,'done.');
-    		});
-	    }
-	});
-})();
-</script>
+    <template>
+        <link rel='stylesheet' href="video-card-list.css">
+        <div>
+            <template id='tmpl' repeat='{{v in videos}}'>
+                <video-card name='{{v.name}}' vid='{{v.vid}}' youtubeid='{{v.youtubeid}}'>
+                </video-card>
+            </template>
+        </div>
+    </template>
+    <script>
+    (function() {
+        var cdn = new Firebase("https://voice-tube-cdn.firebaseio.com/");
+        var vDB = cdn.child("videos");
+        Polymer({
+            videos: [],
+            ready: function() {
+                var my = this;
+                var videoList = ["17440", "17821", "17129", "18435", "4004", "dodo", "babylion", "anatomylesson", "how_look_good", "cat_101", "13582", "9947", "10294", "10295", "10296", "10297", /*,"15864","eatbug","pan","interviewadvice","minisushi","ellencommencement","googledocs"*/ ];
+                //get All Videos
+                vDB.once('value', function(obj) {
+                    var videoData = obj.val();
+                    for (var i in videoList) {
+                        var vid = videoList[i];
+                        var videoInfo = videoData[vid].info;
+                        my.videos.push(videoInfo);
+                    }
+                });
+            },
+            list: function(callback) {
+                vDB.once('value', function(obj) {
+                    console.log(obj.val());
+                });
+            },
+            update: function(vid, info, callback) {
+                var infoNode = vDB.child(vid + '/info');
+                infoNode.update(info, function() {
+                    console.log('update ', vid, 'done.');
+                });
+            }
+        });
+    })();
+    </script>
 </polymer-element>
