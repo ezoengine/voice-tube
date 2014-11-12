@@ -33,6 +33,7 @@
         	total:0,sentence:0,video:0,
         	img:'http://www.filecluster.com/howto/wp-content/uploads/2014/07/User-Default.jpg',
             fireHover: false,
+            ready2Go: false,
             user: '',
             ready: function() {
             	var my = this;
@@ -44,6 +45,7 @@
 	                my.total = my.timeConvert(spendTime.total);
 	                my.video = my.user.videos().length;
 	                my.sentence = my.user.sentences();
+                    my.ready2Go = true;
                 });
             },
             click: function(e) {
@@ -62,14 +64,14 @@
                 return min + '分' + sec + '秒';
             },
             onHovered: function() {
-                if (!this.fireHover) {
-                    this.fire('user-card-onHovered', this.name);
+                if (this.ready2Go && !this.fireHover) {
+                    this.fire('user-card-onHovered', this.user);
                     this.fireHover = true;
                 }
             },
             onUnhovered: function() {
-                if (this.fireHover) {
-                    this.fire('user-card-onUnhovered', this.name);
+                if (this.ready2Go && this.fireHover) {
+                    this.fire('user-card-onUnhovered', this.user);
                     this.fireHover = false;
                 }
             }

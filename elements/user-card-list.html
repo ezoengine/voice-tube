@@ -2,11 +2,9 @@
 <polymer-element name="user-card-list" verify attributes=''>
 <template>
 	<div id='cards' vertical layout center-justified>
-		<div layout horizontal center-justified>
+		<div horizontal layout around-justified style="margin:100px">
 			<template id='tmpl' repeat='{{user in users}}'>
-				<user-card name='{{user.name}}' today='{{user.today}}' total='{{user.total}}' video='{{user.video}}' sentence='{{user.sentence}}'>
-					<img src="{{user.image}}">
-				</user-card>
+				<user-card name='{{user.name}}'></user-card>
 			</template>
 		</div>
 	</div>
@@ -15,37 +13,11 @@
 (function(){
 	Polymer({
 		ready:function(){
-			var my = this;
-			var users = db.child("users");
-			users.once('value',function(obj){
-				var info = obj.val();
-				my.db = info;
-				var todaySpendTime = 0;
-				var totalSpendTime = 0;
-				var studyWordFromSentence = [];
-				var users = [];
-				var userList = Object.keys(info);
-				for(var i=0;i<userList.length;i++){
-					var name = userList[i];
-					var user = new User(name,info[name]);
-					window[name] = user;
-					users.push({
-						name: name,
-						image: info[name].info.image,
-						today: user.spendTime().today,
-						total: user.spendTime().total,
-						video: user.videos().length,
-						sentence: user.sentences()
-					});
-				}
-				my.users = users;
-				if(typeof marty == 'object'){
-					marty.studyHistory();
-				}
-			});
-	    },
-	    info:function(){
-	    	return this.db;
+			this.users = [
+			{name:'marty'},
+			{name:'Lynn'},
+			{name:'NaNa'},
+			{name:'NiNa'}];
 	    }
 	});
 })();

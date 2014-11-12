@@ -2,40 +2,41 @@
 <script src="jquery-2.1.1.min.js"></script>
 <script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
 
-<polymer-element name="video-card" verify attributes='name vid youtubeid'>
-<template>
-	<data-base id='video' url="https://voice-tube-cdn.firebaseio.com/videos">
-	</data-base>
-	<link rel='stylesheet' href="video-card.css">
- 	<div class="card" on-click='{{click}}'>
-   	  <div id='amt' >{{seqAmt}}</div>
-      <div vertical layout>
-      	<div style="width:100%;height:240px;overflow:hidden">
-  		  <img id='img' class='photo'>
-  		</div>
-  		<div class='video'>{{name}}</div>
-    </div>	
-</template>
-<script>
-(function(){
-	Polymer({
-		seqAmt: 0,
-		ready:function(){
-			var my = this;
-			this.$.img.src = 'http://img.youtube.com/vi/'+this.youtubeid+'/0.jpg';
-			this.$.video.query(this.vid,function(captions){
-				my.captions = captions;
-				my.seqAmt = captions.en.length;
-			});
-	    },
-	    click:function(e){
-	    	this.fire('video-card-click',{
-	    		vid: this.vid,
-	    		youtubeid: this.youtubeid,
-	    		name: this.name
-	    	});
-	    }
-	});
-})();
-</script>
+<polymer-element name="video-card" verify attributes='name vid youtubeid amt'>
+    <template>
+        <data-base id='video' url="https://voice-tube-cdn.firebaseio.com/videos">
+        </data-base>
+        <link rel='stylesheet' href="video-card.css">
+        <div class="card" on-click='{{click}}'>
+            <div id='sentenceAmt'>{{amt}}</div>
+            <div vertical layout>
+                <div style="width:100%;height:240px;overflow:hidden">
+                    <img id='img' class='photo'>
+                </div>
+                <div class='video'>{{name}}</div>
+            </div>
+    </template>
+    <script>
+    (function() {
+        Polymer({
+            seqAmt: 0,
+            ready: function() {
+                var my = this;
+                this.$.img.src = 'http://img.youtube.com/vi/' + this.youtubeid + '/0.jpg';
+            },
+            click: function(e) {
+            	var my = this;
+                this.$.video.query(my.vid, function(captions) {
+                    my.captions = captions;
+                    my.seqAmt = captions.en.length;
+                    my.fire('video-card-click', {
+                        vid: my.vid,
+                        youtubeid: my.youtubeid,
+                        name: my.name
+                    });
+                });
+            }
+        });
+    })();
+    </script>
 </polymer-element>
