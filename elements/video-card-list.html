@@ -18,10 +18,12 @@
                 var my = this;
                 this.$.db.query('videos', function(data) {
                     var list = data['_order_'];
+                    var videoList = [];
                     for (var i in list) {
                         var videoInfo = data[list[i]];
-                        my.videos.push(videoInfo);
+                        videoList.push(videoInfo);
                     }
+                    my.videos = videoList;
                 });
             }
         });

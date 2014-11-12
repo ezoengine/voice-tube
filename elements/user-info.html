@@ -90,10 +90,10 @@
                 每個句子的熟悉度
                 各句子中學習的單字
                 **/
-                videoInfo: function(video) {
-                    var vid = video.vid;
-                    var youtubeid = video.youtubeid;
-                    if (!my.videos.hasOwnProperty(youtubeid)) {
+                videoInfo: function() {
+                    var vid = this.study.vid;
+                    var youtubeid = this.study.youtubeid;
+                    if (my.videos==null || !my.videos.hasOwnProperty(youtubeid)) {
                         return {};
                     }
                     var sentenceData = JSON.parse(localStorage.getItem(vid));
@@ -181,6 +181,22 @@
                         total: totalSpendTime,
                         today: todaySpendTime
                     };
+                },
+                updateSentence: function(sentObj) {
+                    var saveObj = {};
+                    var self = this;
+                    var nodeName = my.name + "/videos/" + this.study.youtubeid + "/sentences";
+                    var sentences = this.db.query(nodeName,function(saveObj) {
+                        saveObj = saveObj == null ? {}:saveObj;
+                        var key = 'idx' + (sentObj.idx < 10 ? '0' : '') + sentObj.idx;
+                        if (!saveObj.hasOwnProperty(key)) {
+                            saveObj[key] = [];
+                        }
+                        var info = sentObj.info();
+                        delete info.sentence;
+                        saveObj[key].push(info);
+                        self.db.update(nodeName,saveObj);
+                    });
                 }
             }
         };
@@ -191,8 +207,12 @@
                 var my = this;
                 this.$.users.query(my.name, function(data) {
                     my.user = new User(my.name, data);
+                    my.user.db = my.$.users;
                     my.fire('user-info-ready');
                 });
+            },
+            updateSentence:function(sentObj){
+                this.user.updateSentence(this.$.users,this.$.user,sendObj);
             },
             info: function() {
                 console.log(this.user);

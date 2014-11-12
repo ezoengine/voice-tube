@@ -10,11 +10,13 @@
     <script src="bower_components/platform/platform.js"></script>
     <link rel='stylesheet' href="a.css">
     <script src="elements/jquery-2.1.1.min.js"></script>
+    <link rel="import" href="elements/data-base.html">
     <script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
     <script src="jsUtils.js"></script>
 </head>
 
 <body style="font-size:1em;background-color:#000;color:#fff">
+    <data-base id='db' url="https://voice-tube.firebaseio.com/videos"></data-base>
     name:
     <input type='txt' id='name' value="" style="font-size:2em">
     <br>
@@ -134,6 +136,13 @@
         var obj = {};
         obj[vid] = captions;
         console.log('upload to firebase, name:', vid);
+        var sentAmt = 0;
+        for(var v in captions.en){
+            sentAmt++;
+        }
+        obj[vid].info.amt = sentAmt;
+        db.update(vid,obj[vid].info);
+        
         cdn.child("videos").update(obj, function() {
         	var str = JSON.stringify(captions);
         	$('#ctx').html(str);

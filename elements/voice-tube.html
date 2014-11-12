@@ -49,7 +49,6 @@
 			my.youtubeid = my.youtubeid.indexOf('http')==0 ? 
 			my.youtubeid.substring(my.youtubeid.indexOf('v=')+2):
 			my.youtubeid;
-			//sole.log('youtube id['+my.youtubeid+']');
 			document.addEventListener('google-youtube-ready',function(){
 				$.each(my.captions.en,function(i){
 					my.captions.en[i].text = my.captions.en[i].text

@@ -14,12 +14,10 @@
     <link rel="import" href="elements/voice-tube.html">
     <link rel="import" href="elements/user-status.html">
     <script src="elements/jquery-2.1.1.min.js"></script>
-    <script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
     <script src="jsUtils.js"></script>
-    <script src="main.js"></script>
 </head>
 
-<body class='fontstyle'>
+<body class='fontstyle' unresolved>
 
     <div id='cards' vertical layout center-justified>
         <user-card-list id='uclist'></user-card-list>
@@ -27,9 +25,12 @@
         <c3-timeseries id='c3t' width='60%'></c3-timeseries>
     </div>
 
-    <div id='videos' style='text-align:center; position: relative;top: 30%;transform: translateY(-50%);'>
-        <div style='height:350px'></div>
-        <video-card-list id='vclist'></video-card-list>
+    <div id='videos'>
+        <h1>Video List</h1>
+        <div style='text-align:center;margin:80px'>
+            <video-card-list id='vclist'>
+            </video-card-list>
+        </div>
     </div>
 
     <div id='selectRange' style='margin:0 auto;'>
@@ -97,13 +98,17 @@
         };
         localStorage.setItem('selectRange', JSON.stringify(range));
         $('#selectRange').fadeOut(function() {
-            insertVoiceTube(study.vid, study.youtubeid, range.start + '..' + range.end);
+            document.querySelector('#ctx').innerHTML =
+                "<voice-tube id='v' vid='" + user.study.vid +
+                "' youtubeid='" + user.study.youtubeid +
+                "' exam='" + range.start + '..' + range.end +
+                "' size='32'></voice-tube>";
+
             $('#showtime').fadeIn();
         });
     });
 
     addEventListener('user-card-click', function(e) {
-        study.username = e.detail;
         $('#cards').fadeOut(function() {
             $('#videos').fadeIn();
         });
@@ -115,19 +120,18 @@
     });
 
     addEventListener('video-card-click', function(e) {
-        var username = study.username;
-        study = e.detail;
-        study.username = username;
+        user.study = e.detail;
         $('#videos').fadeOut(function() {
             $('#selectRange').fadeIn();
-            info = user.videoInfo(study);
+            info = user.videoInfo();
             userStatus.info(info);
             userStatus.renderChart(user);
         });
     });
 
     addEventListener('x-sentence-completed', function(e) {
-        updateSentence(e.detail.val);
+        var sentObj = e.detail.val;
+        user.updateSentence(sentObj);
     });
 
     addEventListener('voice-tube-ready', function(e) {
