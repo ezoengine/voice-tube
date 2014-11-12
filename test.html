@@ -1,23 +1,54 @@
 <html>
-	<head>
-		<style>body{font: 52px/1.3 'Droid Sans Mono', sans-serif;}</style>
-		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono">
-		<script src="bower_components/platform/platform.js"></script>
-		<link rel="import" href="elements/x-sentence.html">
-	</head>
-	<body>
-		<button onclick="test()">Test</button>
-		1.這是一本書
-		<x-sentence id='xs' size='32'>
-			this is a book
-		</x-sentence>
-		<script>
-			function test(){
-				xs.focusLastWord();
-			}
 
-		</script>
-	</body>
+<head>
+    <style>
+    body {
+        font-size: 5rem;
+    }
+    </style>
+    <script src="bower_components/platform/platform.js"></script>
+    <link rel="import" href="elements/user-card.html">
+    <link rel="import" href="elements/data-base.html">
+</head>
+
+<body unresolved>
+    <data-base id='db' url="https://voice-tube-cdn.firebaseio.com"></data-base>
+    <data-base id='db2' url="https://voice-tube.firebaseio.com"></data-base>
+    <!-- <div horizontal layout around-justified style="margin:100px">
+        <user-card name='marty'></user-card>
+        <user-card name='NiNa'></user-card>
+        <user-card name='Lynn'></user-card>
+        <user-card name='NaNa'></user-card>
+        </div>
+        -->
+    <script>
+    function size(obj) {
+        var size = 0,
+            key;
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) size++;
+        }
+        return size;
+    };
+    var videoList = ["17440", "17821", "17129", "18435", "4004", "dodo", "babylion", "anatomylesson", "how_look_good", "cat_101", "13582", "9947", "10294", "10295", "10296", "10297", /*,"15864","eatbug","pan","interviewadvice","minisushi","ellencommencement","googledocs"*/ ];
+    addEventListener('polymer-ready', function() {
+        db.query('/videos', function(node) {
+            var teamVideo = {
+                teamA: videoList
+            };
+            var allVideo = {'_order_':videoList};
+            for (var v in videoList) {
+                var id = videoList[v];
+                var info = node[id].info;
+                info.amt = size(node[id].en);
+                allVideo[id] = info;
+            }
+            db2.update('videos', allVideo, function() {
+                console.log('update videoList callback');
+            });
+        });
+    });
+    </script>
+</body>
+
 </html>
-
-

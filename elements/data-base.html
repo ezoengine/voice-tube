@@ -1,0 +1,32 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
+<polymer-element name="data-base" verify attributes='url'>
+    <template>
+
+    </template>
+    <script>
+    (function() {
+        Polymer({
+            db: '',
+            ready: function() {
+                this.db = new Firebase(this.url);
+            },
+            query: function(node, callback) {
+                this.db.child(node).once('value', function(obj) {
+                    if (typeof callback === "function") {
+                        callback(obj.val());
+                    }
+                });
+            },
+            update: function(node, info, callback) {
+                var updateNode = this.db.child(node);
+                updateNode.update(info, function() {
+                    if (typeof callback === "function") {
+                        callback();
+                    }
+                });
+            }
+        });
+    })();
+    </script>
+</polymer-element>

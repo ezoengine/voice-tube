@@ -1,68 +1,79 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="user-info.html">
 <polymer-element name="user-card" verify attributes='name today total words sentence video'>
-<template>
-	<link rel='stylesheet' href="user-card.css">
- 	<div class="card" on-click='{{click}}'
- 		 on-mouseover='{{onHovered}}' on-mouseout='{{onUnhovered}}'>
-      <div vertical layout>
-      	<div style="width:100%;height:240px;overflow:hidden">
-  			<img id='img' class='photo'>
-  		</div>
-  		<div class='user'>{{name}}</div>
-	      <div class='fields'>
-	        <div horizontal layout class='field' >
-	          <div class='name' flex>學習句子</div>
-	          <div class='val'>{{sentence}}</div>
-	        </div>
-	        <div horizontal layout class='field' >
-	          <div class='name' flex>學習影片</div>
-	          <div class='val'>{{video}}</div>
-	        </div>
-	        <div horizontal layout class='field' >
-	          <div class='name' flex>累積時間</div>
-	          <div class='val'>{{total}}</div>
-	        </div>
-	      </div>
-	  </div>
-	</div>
-</template>
-<script>
-(function(){
-	Polymer({
-		fireHover:false,
-		ready:function(){
-			this.$.img.src = this.querySelector('img').src;
-			this.today = this.timeConvert(this.today);
-			this.total = this.timeConvert(this.total);
-	    },
-	    click:function(e){
-	    	this.fire('user-card-click',this.name);
-	    },
-	    timeConvert:function(n){
-	    	var sec = parseInt(n);
-	    	var min = sec>60 ? parseInt(sec/60): 0;
-	    	var hour = min>60 ? parseInt(min/60): 0;
-	    	if(hour>0){
-	    		return hour + '小時' + min%60 +'分鐘';
-	    	}
-	    	if(min>0){
-	    		return min + '分' + sec%60 +'秒';
-	    	}
-	    	return min + '分' + sec +'秒';
-	    },
-	    onHovered: function() {
-	    	if(!this.fireHover){
-	    		this.fire('user-card-onHovered',this.name);
-	    		this.fireHover = true;
-	    	}
-	    },
-	    onUnhovered: function() {
-	    	if(this.fireHover){
-	    		this.fire('user-card-onUnhovered',this.name);
-	    		this.fireHover = false;
-	    	}
-	    }
-	});
-})();
-</script>
+    <template>
+        <link rel='stylesheet' href="user-card.css">
+        <div class="card" on-click='{{click}}' on-mouseover='{{onHovered}}' on-mouseout='{{onUnhovered}}'>
+	    	<user-info id='data' name='{{name}}'></user-info>
+            <div vertical layout>
+                <div style="width:100%;height:240px;overflow:hidden">
+                    <img id='img' class='photo'>
+                </div>
+                <div class='username'>{{name}}</div>
+                <div class='fields'>
+                    <div horizontal layout class='field'>
+                        <div class='name' flex>學習句子</div>
+                        <div class='val'>{{sentence}}</div>
+                    </div>
+                    <div horizontal layout class='field'>
+                        <div class='name' flex>學習影片</div>
+                        <div class='val'>{{video}}</div>
+                    </div>
+                    <div horizontal layout class='field'>
+                        <div class='name' flex>累積時間</div>
+                        <div class='val'>{{total}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+    (function() {
+        Polymer({
+        	total:0,sentence:0,video:0,
+        	img:'http://www.filecluster.com/howto/wp-content/uploads/2014/07/User-Default.jpg',
+            fireHover: false,
+            user: '',
+            ready: function() {
+            	var my = this;
+                this.addEventListener("user-info-ready",function(e){
+                	my.user = my.$.data.user;
+                	my.$.img.src = my.user.photo();
+                	var spendTime = my.user.spendTime();
+	                my.today = my.timeConvert(spendTime.today);
+	                my.total = my.timeConvert(spendTime.total);
+	                my.video = my.user.videos().length;
+	                my.sentence = my.user.sentences();
+                });
+            },
+            click: function(e) {
+                this.fire('user-card-click', this.name);
+            },
+            timeConvert: function(n) {
+                var sec = parseInt(n);
+                var min = sec > 60 ? parseInt(sec / 60) : 0;
+                var hour = min > 60 ? parseInt(min / 60) : 0;
+                if (hour > 0) {
+                    return hour + '小時' + min % 60 + '分鐘';
+                }
+                if (min > 0) {
+                    return min + '分' + sec % 60 + '秒';
+                }
+                return min + '分' + sec + '秒';
+            },
+            onHovered: function() {
+                if (!this.fireHover) {
+                    this.fire('user-card-onHovered', this.name);
+                    this.fireHover = true;
+                }
+            },
+            onUnhovered: function() {
+                if (this.fireHover) {
+                    this.fire('user-card-onUnhovered', this.name);
+                    this.fireHover = false;
+                }
+            }
+        });
+    })();
+    </script>
 </polymer-element>
