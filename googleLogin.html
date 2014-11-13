@@ -1,0 +1,30 @@
+<html>
+
+<head>
+    <style>
+    body {
+        font-size: 5rem;
+    }
+    </style>
+    <script src="bower_components/platform/platform.js"></script>
+    <link rel="import" href="elements/data-base.html" >
+</head>
+
+<body unresolved>
+    <data-base id='db' login='fb' url="https://voice-tube.firebaseio.com/"></data-base>
+    <script>
+    addEventListener('polymer-ready', function() {
+        
+    });
+
+    addEventListener('google-login',function(data){
+        console.log('Goggle Login Data',data);
+    });
+
+    addEventListener('facebook-login',function(data){
+        console.log('Facebook Login Data',data);
+    });
+    </script>
+</body>
+
+</html>
