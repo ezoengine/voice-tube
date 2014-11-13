@@ -77,19 +77,14 @@
                             studyInfo = history[dateKey];
                             if (!studyInfo.studyTimes.hasOwnProperty(youtubeid + '_' + sIdx)) {
                                 studyInfo.studyTimes[youtubeid + '_' + sIdx] = 0;
-                                studyInfo.spendTime += sInfo.totalSpendTime / 2;
                                 studyInfo.sentenceAmt += 1;
                             }
+                            studyInfo.spendTime += sInfo['eachSpendTime'][i];
                             studyInfo.studyTimes[youtubeid + '_' + sIdx] += 1;
                         };
                     });
                     return history;
                 },
-                /**
-                影片學習進度
-                每個句子的熟悉度
-                各句子中學習的單字
-                **/
                 videoInfo: function() {
                     var vid = this.study.vid;
                     var youtubeid = this.study.youtubeid;
@@ -120,7 +115,8 @@
                     var practiceTimes = practiceTimesKeys.length;
                     var spendTime = 0,
                         todaySpendTime = 0,
-                        startTime = [];
+                        startTime = [],
+                        eachSpendTime = [];
                     var wrongAns = [];
                     var corrects = 0,
                         total = 0;
@@ -137,10 +133,12 @@
                             todaySpendTime += idx.spendTime;
                         }
                         startTime.push(idx.startTime);
+                        eachSpendTime.push(idx.spendTime);
                     }
                     spendTime = parseInt(spendTime * 1000) / 1000.0;
                     return {
                         startTime: startTime,
+                        eachSpendTime: eachSpendTime,
                         totalSpendTime: spendTime,
                         todaySpendTime: todaySpendTime,
                         wrongAns: wrongAns,
