@@ -16,7 +16,8 @@
 </head>
 
 <body style="font-size:1em;background-color:#000;color:#fff">
-    <data-base id='db' url="https://voice-tube.firebaseio.com/videos"></data-base>
+    <data-base id='db' url="https://voice-tube.firebaseio.com"></data-base>
+
     name:
     <input type='txt' id='name' value="" style="font-size:2em">
     <br>
@@ -141,8 +142,13 @@
             sentAmt++;
         }
         obj[vid].info.amt = sentAmt;
-        db.update(vid,obj[vid].info);
-        
+        db.update('videos/'+vid,obj[vid].info);
+        db.query('order',function(data){
+            data = data+','+vid;
+            db.update('/',{'order':data},function(){
+                alert('update order:'+data);
+            });
+        });
         cdn.child("videos").update(obj, function() {
         	var str = JSON.stringify(captions);
         	$('#ctx').html(str);
