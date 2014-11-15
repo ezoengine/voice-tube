@@ -16,8 +16,9 @@
             videos: [],
             ready: function() {
                 var my = this;
-                this.$.db.query('videos', function(data) {
-                    var list = data['_order_'];
+            this.$.db.query('videos', function(data) {
+                my.$.db.query('order', function(list) {
+                    list = list.split(',');
                     var videoList = [];
                     for (var i in list) {
                         var videoInfo = data[list[i]];
@@ -25,6 +26,7 @@
                     }
                     my.videos = videoList;
                 });
+            });
             }
         });
     })();

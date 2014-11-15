@@ -64,16 +64,10 @@
 			// get captions
 			if(localStorage.getItem(my.vid)){
 				my.captions = JSON.parse(localStorage.getItem(my.vid));
+				//localStorage.removeItem(my.vid);
 			}
 			else{
-				$.ajax(
-					{dataType: 'jsonp',
-					 url: 'http://cdn.voicetube.tw/assets/captions/'+my.vid+'.js'})
-				.always(function(e){
-					console.log('load from VoiceTube CDN:'+my.vid);
-					my.captions = captions;
-					localStorage.setItem(my.vid,JSON.stringify(captions));
-				});
+				alert(my.vid+' without data , please check localstorage');
 			}
 			// register sentence speak event
 			this.addEventListener('x-sentence-sound',function(e){

@@ -4,6 +4,8 @@
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono">
     <style>
     body {
+        min-width:960px;
+        min-height:640px;
         font: 'Droid Sans Mono', sans-serif;
     }
     </style>
@@ -13,12 +15,13 @@
     <link rel="import" href="elements/video-card-list.html">
     <link rel="import" href="elements/voice-tube.html">
     <link rel="import" href="elements/user-status.html">
+    <link rel="import" href="elements/data-base.html">
     <script src="elements/jquery-2.1.1.min.js"></script>
     <script src="jsUtils.js"></script>
 </head>
 
-<body class='fontstyle' unresolved>
-
+<body class='fontstyle' unresolved fullbleed>
+    
     <div id='cards' vertical layout center-justified>
         <user-card-list id='uclist'></user-card-list>
         <br>
@@ -64,7 +67,7 @@
             <div id='speak'></div>
         </div>
     </div>
-
+    <data-base id='video' url="https://voice-tube-cdn.firebaseio.com/videos">
     <script>
     function showUserChart(user) {
         window.user = user;
@@ -105,12 +108,14 @@
     });
 
     function showExam() {
-        document.querySelector('#ctx').innerHTML =
+        video.query(user.study.vid, function(captions) {
+         localStorage.setItem(user.study.vid,JSON.stringify(captions));
+         document.querySelector('#ctx').innerHTML =
             "<voice-tube id='v' vid='" + user.study.vid +
             "' youtubeid='" + user.study.youtubeid +
             "' exam='" + user.range.start + '..' + user.range.end +
-            "' size='32'></voice-tube>";
-
+            "' size='32'></voice-tube>";         
+        });
         $('#showtime').fadeIn();
     }
 

@@ -27,13 +27,12 @@
 		}
 	};
 	PolymerExpressions.prototype.isEscapeChar = function(word){
-		return word.length==0 || word.length==1 && ",. ?!\":;(-)—".indexOf(word)>=0;
+		return word.length==0 || word.length==1 && word.match(/[^\w']/g);
 	};
 	Polymer({
 		total: 0,
 		size: 32,
 		sound: true,
-		escapeChar:",. ?!\":;(-)—",
 		seeAns:[],
 		wrongAns:[],
 		corrects: 0,
@@ -171,8 +170,8 @@
 	      var ctx = [];
 	      this.ans = rawData;
 	      for(var i=0;i<rawData.length;i++){
-	        var c = rawData.charAt(i);
-	        if(this.escapeChar.indexOf(c)>-1){
+	        var c = ''+rawData.charAt(i);
+	        if(c.match(/[^\w']/g)){
 	          ctx.push(term);
 	          if(c!=' ') {ctx.push(c);}
 	          term = '';

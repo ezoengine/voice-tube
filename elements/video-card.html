@@ -29,6 +29,7 @@
                 this.$.video.query(my.vid, function(captions) {
                     my.captions = captions;
                     my.seqAmt = captions.en.length;
+                    localStorage.setItem(my.vid,JSON.stringify(captions));
                     my.fire('video-card-click', {
                         vid: my.vid,
                         youtubeid: my.youtubeid,
