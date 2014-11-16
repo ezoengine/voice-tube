@@ -1,0 +1,112 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono">
+    <style>
+    body {
+        font: 'Droid Sans Mono', sans-serif;
+    }
+    </style>
+    
+
+    <script src="bower_components/platform/platform.js"></script>
+    <link rel='stylesheet' href="a.css">
+    <script src="elements/jquery-2.1.1.min.js"></script>
+    <link rel="import" href="elements/data-base.html">
+    <script src="https://cdn.firebase.com/js/client/1.1.3/firebase.js"></script>
+    <script src="jsUtils.js"></script>
+</head>
+
+<body style="font-size:1em;background-color:#000;color:#fff">
+    <data-base id='db' url="https://voice-tube.firebaseio.com"></data-base>
+
+    <br>youtubeid or Youtube's Video URL
+    <input type='txt' id='youtubeid' value='' style="font-size:2em">
+    <br>
+    <br>
+    name:
+    <input type='txt' id='name' value="" placeholder='rename the title,if you want' style="font-size:2em;width:50%">
+    <br>
+    <br>
+    <button style='font-size:2em' onclick='main()'>Send</button>
+
+    <div id='ctx'></div>
+    <script>
+    var cdn = new Firebase("https://voice-tube-cdn.firebaseio.com/");
+
+    // to get really youtubeID
+    $('#youtubeid').on('keyup', function(e) {
+        var val = $(this).val();
+        var pos = val.indexOf('?v=');
+        if (pos > 0) {
+            val = val.substring(pos + 3);
+            $(this).val(val);
+        }
+    });
+
+
+    function srt(youtubeid,callback){
+        $.ajax("http://service2anyone.appspot.com/event/put/str/url.srt.go?http://www.youtube.com/watch?v="+youtubeid).always(function(data){
+            callback(JSON.parse(data));
+        });
+    }
+
+    //8OJ7ih8EE7s
+    function main() {
+        var youtubeid = $('#youtubeid').val(),name = $('#name').val();
+        var vid = youtubeid;
+        srt(youtubeid,function(video){
+                video['info'] = {
+                    name: name,
+                    youtubeid: youtubeid,
+                    vid: youtubeid
+                };
+                if(name.trim()===''){
+                    video['info'].name = video.title;
+                }
+                upload2Firebase(vid, video);
+        });
+    }
+
+    function toSec(time) {
+        time = time.replace(/,/, '.').split(':');
+        var sec = parseInt(time[0]) * 60 * 60 + parseInt(time[1]) * 60 + (time[2] * 1.0);
+        return parseInt(sec * 1000) / 1000.0;
+    }
+
+    function parseTimeInfo(info) {
+        info = info.split(' --> ');
+        var stTime = toSec(info[0]);
+        var edTime = toSec(info[1]);
+        var dur = parseInt(parseInt((edTime - stTime) * 1000)) / 1000.0;
+        return [stTime, dur];
+    }
+
+    function upload2Firebase(vid, captions) {
+        var obj = {};
+        obj[vid] = captions;
+        console.log('upload to firebase, name:', vid);
+        var sentAmt = 0;
+        for(var v in captions.en){
+            sentAmt++;
+        }
+        obj[vid].info.amt = sentAmt;
+        db.update('videos/'+vid,obj[vid].info);
+        db.query('order',function(data){
+            if(data.indexOf(vid)<0){
+                data = data+','+vid;
+            }
+            db.update('/',{'order':data},function(){
+                alert('update order:'+data);
+            });
+        });
+        cdn.child("videos").update(obj, function() {
+        	var str = JSON.stringify(captions);
+        	$('#ctx').html(str);
+        });
+    }
+    
+    </script>
+</body>
+
+</html>
