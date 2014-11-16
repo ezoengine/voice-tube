@@ -1,38 +1,42 @@
 <link rel="import" href="../bower_components/google-youtube/google-youtube.html">
 <link rel="import" href="../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
+
 <link rel="import" href="x-sentence.html">
 <link rel="import" href="voice-recorder.html">
 <polymer-element name="voice-tube" verify attributes='youtubeid size'>
     <template>
-        <link rel='stylesheet' href="voice-tube.css">
-        <div layout vertical>
-            <div>
-                <div layout horizontal>
-                    <div flex id='tv' style='margin:{{margin/2}}px;'>
-                        <google-youtube id='youtube' rel="0" start="5" videoid='{{youtubeid}}' height="{{youtubeheight}}" width="{{youtubewidth}}"></google-youtube>
+        <link rel='stylesheet' href="my-exam.css">
+        <core-header-panel>
+            <div class="core-header">
+                <div>
+                    <div layout horizontal center-justified>
+                        <div>
+                            <google-youtube id='youtube' rel="0" start="5" videoid='{{youtubeid}}' height="{{youtubeheight}}" width="{{youtubewidth}}"></google-youtube>
+                        </div>
+                    </div>
+                    <div layout horizontal center-justified>
+                        <span style='line-height:60px'>播放速度</span>
                         <paper-slider step="0.25" min="0.5" max="2" value="{{playbackRate}}" editable></paper-slider>
                     </div>
-                    <div>
-                        <h2>考生需知</h2>
-                        <h2>全卷共 ?? 題，滿分為100分，考試時間不限</h2>
-                        <h2>全卷必須按下 [play] 或在輸入框內按下 , 聆聽老師念英文</h2>
-                        <h2>聆聽次數列入考試紀錄，但不影響計分</h2>
-                        <h2>不會的單字，可在輸入框內按下 . 查看正確答案，但會扣分</h2>
-                        <h2>全部答完將顯示學生此次考試成績</h2>
+
+                </div>
+            </div>
+            <div class="content" fit>
+                <div layout horizontal center-justified>
+                    <div id='sentence' class='sentence_cn'>
+                        <template repeat='{{item in sentences}}'>
+                            {{item.seq}}.
+                            <img src='voice-player.png' idx="{{item.seq-1}}" width='48px' on-click='{{playSentence}}' style="border-radius: 4px;cursor:pointer;background-color:#aaa;">
+                            <voice-recorder idx="{{item.seq-1}}" on-click={{voiceClick}}></voice-recorder>{{item.cn}}
+                            <x-sentence size='{{size}}' idx="{{item.seq-1}}" sound='false'>{{item.text}}</x-sentence>
+                            <br>
+                        </template>
                     </div>
                 </div>
             </div>
-            <div>
-                <div id='sentence' class='sentence_cn'>
-                    <template repeat='{{item in sentences}}'>
-                        {{item.seq}}.
-                        <img src='voice-player.png' idx="{{item.seq-1}}" width='48px' on-click='{{playSentence}}' style="border-radius: 4px;cursor:pointer;background-color:#aaa;">
-                        <voice-recorder idx="{{item.seq-1}}" on-click={{voiceClick}}></voice-recorder>{{item.cn}}
-                        <x-sentence size='{{size}}' idx="{{item.seq-1}}" sound='false'>{{item.text}}</x-sentence>
-                        <br>
-                    </template>
-                </div>
-            </div>
+        </core-header-panel>
+
     </template>
     <script>
     (function() {
@@ -73,9 +77,6 @@
                     my.youtubeid.substring(my.youtubeid.indexOf('v=') + 2) :
                     my.youtubeid;
                 document.addEventListener('google-youtube-ready', function() {
-                    var width = (my.$.tv.offsetWidth - my.margin);
-                    my.youtubewidth = width + 'px';
-                    my.youtubeheight = width * 9 / 16 + 'px';
                     $.each(my.captions.en, function(i) {
                         my.captions.en[i].text = my.captions.en[i].text
                             .replace(/&#39;|’/g, "'");

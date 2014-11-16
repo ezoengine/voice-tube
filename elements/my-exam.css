@@ -1,0 +1,17 @@
+.sentence_cn {
+	font-size:1em;
+	margin:15px;
+	max-width:800px;
+}
+
+:host /deep/ input {
+	color:#FFF;
+}
+
+core-header-panel {
+  height: 100%;
+}
+
+.core-header {
+	background-color:#111;
+}
