@@ -1,0 +1,214 @@
+<link rel="import" href="../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="x-sentence.html">
+<link rel="import" href="voice-recorder.html">
+<polymer-element name="voice-tube" verify attributes='youtubeid size'>
+    <template>
+        <link rel='stylesheet' href="voice-tube.css">
+        <div layout vertical>
+            <div>
+                <div layout horizontal>
+                    <div flex id='tv' style='margin:{{margin/2}}px;'>
+                        <google-youtube id='youtube' rel="0" start="5" videoid='{{youtubeid}}' height="{{youtubeheight}}" width="{{youtubewidth}}"></google-youtube>
+                        <paper-slider step="0.25" min="0.5" max="2" value="{{playbackRate}}" editable></paper-slider>
+                    </div>
+                    <div>
+                        <h2>考生需知</h2>
+                        <h2>全卷共 ?? 題，滿分為100分，考試時間不限</h2>
+                        <h2>全卷必須按下 [play] 或在輸入框內按下 , 聆聽老師念英文</h2>
+                        <h2>聆聽次數列入考試紀錄，但不影響計分</h2>
+                        <h2>不會的單字，可在輸入框內按下 . 查看正確答案，但會扣分</h2>
+                        <h2>全部答完將顯示學生此次考試成績</h2>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div id='sentence' class='sentence_cn'>
+                    <template repeat='{{item in sentences}}'>
+                        {{item.seq}}.
+                        <img src='voice-player.png' idx="{{item.seq-1}}" width='48px' on-click='{{playSentence}}' style="border-radius: 4px;cursor:pointer;background-color:#aaa;">
+                        <voice-recorder idx="{{item.seq-1}}" on-click={{voiceClick}}></voice-recorder>{{item.cn}}
+                        <x-sentence size='{{size}}' idx="{{item.seq-1}}" sound='false'>{{item.text}}</x-sentence>
+                        <br>
+                    </template>
+                </div>
+            </div>
+    </template>
+    <script>
+    (function() {
+        Polymer({
+            exam: '1..',
+            idx: 0,
+            size: 16,
+            captions: '',
+            intervalId: '',
+            playTimeoutId: '',
+            playCurrentTime: 0,
+            playNewStartTime: 0,
+            youtubewidth: '320px',
+            youtubeheight: '240px',
+            margin: 20,
+            examInfo: {
+                state: {}
+            },
+            playbackRate: 1.0,
+            start_end: [],
+            playSentence: function(e) {
+                var idx = e.toElement.getAttribute('idx');
+                this.play(idx);
+                idx = idx - this.start_end[0];
+                this.sentenceList(idx).focus();
+            },
+            voiceClick: function(e) {
+                var idx = e.toElement.getAttribute('idx');
+                idx = idx - this.start_end[0];
+                this.sentenceList(idx).focus();
+            },
+            ready: function() {
+                var my = this;
+                my.player = this.$.youtube;
+                my.youtubeid = my.youtubeid.trim();
+
+                my.youtubeid = my.youtubeid.indexOf('http') == 0 ?
+                    my.youtubeid.substring(my.youtubeid.indexOf('v=') + 2) :
+                    my.youtubeid;
+                document.addEventListener('google-youtube-ready', function() {
+                    var width = (my.$.tv.offsetWidth - my.margin);
+                    my.youtubewidth = width + 'px';
+                    my.youtubeheight = width * 9 / 16 + 'px';
+                    $.each(my.captions.en, function(i) {
+                        my.captions.en[i].text = my.captions.en[i].text
+                            .replace(/&#39;|’/g, "'");
+                        my.captions.en[i].cn = '';
+                        if (my.captions.hasOwnProperty('zh-Hant')) {
+                            my.captions.en[i].cn = my.captions['zh-Hant'][i].text;
+                        };
+                    });
+                    my.examSetting();
+                    setTimeout(function() {
+                        my.fire('voice-tube-ready')
+                    }, 300);
+                });
+                // get captions
+                my.captions = JSON.parse(localStorage.getItem(my.youtubeid));
+                console.log('captions', my.captions);
+                // register sentence speak event
+                this.addEventListener('x-sentence-sound', function(e) {
+                    my.play(e.detail);
+                });
+                this.addEventListener('x-sentence-find-prev-focus', function(e) {
+                    var idx = e.detail.key - 1;
+                    var senList = my.sentenceList();
+                    for (var i = 0; i < senList.length; i++) {
+                        if (senList[i].idx === idx) {
+                            senList[i].focusLastWord();
+                            return;
+                        }
+                    }
+                    console.log('not found');
+                });
+                // 
+                document.addEventListener('x-sentence-completed', function(e) {
+                    var sentObj = e.detail;
+                    my.examInfo.state[sentObj.key] = sentObj.val;
+                    var now = Object.keys(my.examInfo.state).length;
+                    if (now == my.sentences.length) {
+                        my.completed();
+                    }
+                    var nextIdx = parseInt(sentObj.key) - my.start_end[0] + 1;
+                    if (nextIdx < my.start_end[1]) {
+                        my.sentenceList(nextIdx).focus();
+                    }
+                });
+            },
+            examSetting: function() {
+                var my = this;
+                var start_end = [0, my.captions.en.length];
+                for (var i = 0; i < my.captions.en.length; i++) {
+                    my.captions.en[i].seq = i + 1;
+                }
+                my.sentences = my.captions.en.splice(start_end[0], start_end[1]);
+                my.start_end = start_end;
+            },
+            completed: function() {
+                var s = this.examInfo.state;
+                var correctAmt = 0,
+                    total = 0,
+                    spendTime = 0,
+                    wrongAmt = [];
+                var speakTimes = 0;
+                for (var key in s) {
+                    total += s[key].total;
+                    spendTime += s[key].spendTime;
+                    correctAmt += s[key].corrects;
+                    speakTimes += s[key].speakTimes;
+                    wrongAmt = wrongAmt.concat(s[key].wrongAns);
+                }
+                var score = parseInt(correctAmt * 100 / total);
+                this.fire('exam-completed', {
+                    score: score,
+                    spendTime: spendTime / 1000.0,
+                    wrongAmt: wrongAmt,
+                    speakTimes: speakTimes
+                });
+            },
+            pause: function() {
+                this.player.pause();
+            },
+            play: function(idx) {
+                idx = parseInt(idx) - this.start_end[0];
+                var self = this;
+                var stTime = self.sentences[idx].start;
+                var edTime = parseFloat(stTime) + parseFloat(self.sentences[idx].dur);
+                var len = stTime + ',' + edTime;
+                var start = len.split(',')[0].trim();
+                start = self.playNewStartTime + parseFloat(start);
+                var end = len.split(',')[1].trim();
+                self.player.player.setPlaybackRate(self.playbackRate);
+                self.player.seekTo(start);
+                self.player.play();
+                var duTime = (end - start) / self.playbackRate * 1000;
+                clearTimeout(self.playTimeoutId);
+                clearInterval(self.intervalId);
+                self.playCurrentTime = 0;
+                self.playTime();
+                self.playTimeoutId = setTimeout(function() {
+                    self.player.pause();
+                    clearInterval(self.intervalId);
+                    self.playCurrentTime = 0;
+                }, duTime);
+            },
+            playTime: function() {
+                var self = this;
+                self.intervalId = setInterval(function() {
+                    self.playCurrentTime += 10; //10ms
+                }, 10);
+            },
+            video: function() {
+                return this.$.youtube;
+            },
+            sentenceList: function(idx) {
+                if (idx != undefined) {
+                    return this.$.sentence.querySelectorAll('x-sentence')[idx];
+                } else {
+                    return this.$.sentence.querySelectorAll('x-sentence');
+                }
+            },
+            focus: function() {
+                this.sentenceList(0).focus();
+            },
+            info: function(idx) {
+                var list = this.sentenceList();
+                var info = [];
+                for (var i = 0; i < list.length; i++) {
+                    info.push(list[i].info());
+                }
+                if (idx != undefined) {
+                    return info[idx];
+                }
+                return info;
+            }
+        });
+    })();
+    </script>
+</polymer-element>

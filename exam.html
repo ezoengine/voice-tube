@@ -1,0 +1,69 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono">
+    <style>
+    body {
+        min-width: 960px;
+        min-height: 640px;
+        font: 'Droid Sans Mono', sans-serif;
+    }
+    </style>
+    <link rel='stylesheet' href="a.css">
+    <script src="bower_components/platform/platform.js"></script>
+    <script src="elements/jquery-2.1.1.min.js"></script>
+    <link rel="import" href="elements/data-base.html">
+    <link rel="import" href="elements/my-exam.html">
+    <link rel="import" href="../bower_components/google-youtube/google-youtube.html">
+
+</head>
+
+<body unresolved class='fontstyle'>
+
+    <div id='board' style="display:none;position:absolute;right:0">
+        <div vertical layout end style="color:#faa;font: 120px/1.3 'Crafty Girls';height:200px;">
+            <div id='score' style="width:300px;text-align:center"></div>
+            <div style="width:300px;text-align:center;margin:-60px 0 0 0">=</div>
+        </div>
+    </div>
+    <div style='font-size:1.5em'>
+        <div id='sc'></div>
+        <div id='result'></div>
+        <div id='speak'></div>
+    </div>
+    <data-base id='videos' url="https://voice-tube-cdn.firebaseio.com/videos">
+    </data-base>
+
+
+    <script>
+    var youtubeid = 'rVGflF0mJ8o';
+    addEventListener('polymer-ready', function() {
+        videos.query(youtubeid, function(data) {
+            var en = data.en;
+            var ne_new = [];
+            for (var i = 0; i < 13; i++) {
+                if (en[i] != null) {
+                    ne_new.push(en[i]);
+                }
+            }
+            data.en = ne_new;
+
+            localStorage.setItem(youtubeid, JSON.stringify(data));
+            var exam = "<voice-tube id='v' youtubeid='" +
+                youtubeid + "' size='32'></voice-tube>";
+            $('body').append(exam);
+        });
+    });
+
+    addEventListener('exam-completed', function(e) {
+        var i = e.detail;
+        board.style.display = 'block';
+        document.querySelector('#score').innerHTML = i.score;
+        document.querySelector('#sc').innerHTML = i.score;
+        document.querySelector('#result').innerHTML = '花費時間:' + i.spendTime;
+        document.querySelector('#speak').innerHTML = '聆聽次數:' + i.speakTimes;
+    });
+    </script>
+</body>
+
+</html>
