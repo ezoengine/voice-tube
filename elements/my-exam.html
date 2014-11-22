@@ -92,7 +92,6 @@
                 });
                 // get captions
                 my.captions = JSON.parse(localStorage.getItem(my.youtubeid));
-                console.log('captions', my.captions);
                 // register sentence speak event
                 this.addEventListener('x-sentence-sound', function(e) {
                     my.play(e.detail);
