@@ -3,7 +3,7 @@
 
     /*global define, module, exports, require */
 
-    var c3 = { version: "0.4.3" };
+    var c3 = { version: "0.4.4" };
 
     var c3_chart_fn, c3_chart_internal_fn;
 
@@ -113,8 +113,8 @@
         $$.defocusedTargetIds = [];
 
         $$.xOrient = config.axis_rotated ? "left" : "bottom";
-        $$.yOrient = config.axis_rotated ? "bottom" : "left";
-        $$.y2Orient = config.axis_rotated ? "top" : "right";
+        $$.yOrient = config.axis_rotated ? (config.axis_y_inner ? "top" : "bottom") : (config.axis_y_inner ? "right" : "left");
+        $$.y2Orient = config.axis_rotated ? (config.axis_y_inner ? "bottom" : "top") : (config.axis_y_inner ? "left" : "right");
         $$.subXOrient = config.axis_rotated ? "left" : "bottom";
 
         $$.isLegendRight = config.legend_position === 'right';
@@ -1029,6 +1029,7 @@
             axis_y_max: undefined,
             axis_y_min: undefined,
             axis_y_center: undefined,
+            axis_y_inner: undefined,
             axis_y_label: {},
             axis_y_tick_format: undefined,
             axis_y_tick_outer: true,
@@ -1042,6 +1043,7 @@
             axis_y2_max: undefined,
             axis_y2_min: undefined,
             axis_y2_center: undefined,
+            axis_y2_inner: undefined,
             axis_y2_label: {},
             axis_y2_tick_format: undefined,
             axis_y2_tick_outer: true,
@@ -2501,8 +2503,10 @@
             return config.padding_left;
         } else if (config.axis_rotated) {
             return !config.axis_x_show ? 1 : Math.max(ceil10($$.getAxisWidthByAxisId('x', withoutRecompute)), 40);
+        } else if (!config.axis_y_show || config.axis_y_inner) { // && !config.axis_rotated
+            return $$.getYAxisLabelPosition().isOuter ? 30 : 1;
         } else {
-            return !config.axis_y_show ? 1 : ceil10($$.getAxisWidthByAxisId('y', withoutRecompute));
+            return ceil10($$.getAxisWidthByAxisId('y', withoutRecompute));
         }
     };
     c3_chart_internal_fn.getCurrentPaddingRight = function () {
@@ -2512,8 +2516,10 @@
             return config.padding_right + 1; // 1 is needed not to hide tick line
         } else if (config.axis_rotated) {
             return defaultPadding + legendWidthOnRight;
+        } else if (!config.axis_y2_show || config.axis_y2_inner) { // && !config.axis_rotated
+            return defaultPadding + legendWidthOnRight + ($$.getY2AxisLabelPosition().isOuter ? 20 : 0);
         } else {
-            return (!config.axis_y2_show ? defaultPadding : ceil10($$.getAxisWidthByAxisId('y2'))) + legendWidthOnRight;
+            return ceil10($$.getAxisWidthByAxisId('y2')) + legendWidthOnRight;
         }
     };
 
@@ -3757,6 +3763,7 @@
             .style('opacity', 0)
             .style('visibility', 'hidden');
     };
+    var legendItemTextBox = {};
     c3_chart_internal_fn.updateLegend = function (targetIds, options, transitions) {
         var $$ = this, config = $$.config;
         var xForLegend, xForLegendText, xForLegendRect, yForLegend, yForLegendText, yForLegendRect;
@@ -3770,9 +3777,16 @@
         withTransition = getOption(options, "withTransition", true);
         withTransitionForTransform = getOption(options, "withTransitionForTransform", true);
 
+        function getTextBox(textElement, id) {
+            if (!legendItemTextBox[id]) {
+                legendItemTextBox[id] = $$.getTextRect(textElement.textContent, CLASS.legendItem);
+            }
+            return legendItemTextBox[id];
+        }
+
         function updatePositions(textElement, id, index) {
             var reset = index === 0, isLast = index === targetIds.length - 1,
-                box = $$.getTextRect(textElement.textContent, CLASS.legendItem),
+                box = getTextBox(textElement, id),
                 itemWidth = box.width + tileWidth + (isLast && !($$.isLegendRight || $$.isLegendInset) ? 0 : paddingRight),
                 itemHeight = box.height + paddingTop,
                 itemLength = $$.isLegendRight || $$.isLegendInset ? itemHeight : itemWidth,
@@ -3983,7 +3997,7 @@
 
         $$.axes.y = main.append("g")
             .attr("class", CLASS.axis + ' ' + CLASS.axisY)
-            .attr("clip-path", $$.clipPathForYAxis)
+            .attr("clip-path", config.axis_y_inner ? "" : $$.clipPathForYAxis)
             .attr("transform", $$.getTranslate('y'))
             .style("visibility", config.axis_y_show ? 'visible' : 'hidden');
         $$.axes.y.append("text")
@@ -4194,7 +4208,7 @@
         if ($$.config.axis_rotated) {
             return position.isInner ? "-0.5em" : "3em";
         } else {
-            return position.isInner ? "1.2em" : -20 - $$.getMaxTickWidth('y');
+            return position.isInner ? "1.2em" : -10 - ($$.config.axis_y_inner ? 0 : ($$.getMaxTickWidth('y') + 10));
         }
     };
     c3_chart_internal_fn.dyForY2AxisLabel = function () {
@@ -4203,7 +4217,7 @@
         if ($$.config.axis_rotated) {
             return position.isInner ? "1.2em" : "-2.2em";
         } else {
-            return position.isInner ? "-0.5em" : 30 + this.getMaxTickWidth('y2');
+            return position.isInner ? "-0.5em" : 15 + ($$.config.axis_y2_inner ? 0 : (this.getMaxTickWidth('y2') + 15));
         }
     };
     c3_chart_internal_fn.textAnchorForXAxisLabel = function () {
@@ -4367,7 +4381,7 @@
     };
     c3_chart_internal_fn.getYAxisClipX = function () {
         var $$ = this;
-        return $$.getAxisClipX($$.config.axis_rotated);
+        return $$.config.axis_y_inner ? -1 : $$.getAxisClipX($$.config.axis_rotated);
     };
     c3_chart_internal_fn.getYAxisClipY = function () {
         var $$ = this;
@@ -4393,7 +4407,7 @@
     };
     c3_chart_internal_fn.getYAxisClipWidth = function () {
         var $$ = this;
-        return $$.getAxisClipWidth($$.config.axis_rotated);
+        return $$.getAxisClipWidth($$.config.axis_rotated) + ($$.config.axis_y_inner ? 20 : 0);
     };
     c3_chart_internal_fn.getYAxisClipHeight = function () {
         var $$ = this;
@@ -6441,6 +6455,8 @@
     // Features:
     // 1. category axis
     // 2. ceil values of translate/x/y to int for half pixel antialiasing
+    // 3. multiline tick text
+    var tickTextCharSize;
     function c3_axis(d3, params) {
         var scale = d3.scale.linear(), orient = "bottom", innerTickSize = 6, outerTickSize, tickPadding = 3, tickValues = null, tickFormat, tickArguments;
 
@@ -6489,6 +6505,9 @@
             return tickFormat ? tickFormat(v) : v;
         }
         function getSizeFor1Char(tick) {
+            if (tickTextCharSize) {
+                return tickTextCharSize;
+            }
             var size = {
                 h: 11.5,
                 w: 5.5
@@ -6503,6 +6522,7 @@
                     size.w = w;
                 }
             }).text('');
+            tickTextCharSize = size;
             return size;
         }
         function axis(g) {

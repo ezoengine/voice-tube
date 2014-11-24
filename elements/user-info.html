@@ -24,7 +24,31 @@
             return keys;
         };
 
-
+        function getDate(args) {
+            var date;
+            if (typeof args == "number") {
+                if (args > 10000000) {
+                    date = new Date(args);
+                } else {
+                    var today = new Date().getTime();
+                    args = args * 86400 * 1000;
+                    date = new Date(today + args);
+                }
+            } else {
+                date = new Date();
+            }
+            var day = date;
+            var dd = day.getDate();
+            var mm = day.getMonth() + 1; //January is 0! 
+            var yyyy = day.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd
+            }
+            if (mm < 10) {
+                mm = '0' + mm
+            }
+            return yyyy + '/' + mm + '/' + dd;
+        }
         var User = function(name, info) {
             var my = this;
             my.name = name;
@@ -37,6 +61,7 @@
                 return today == someday;
             }
             return {
+                image: my.info.image,
                 photo: function() {
                     return my.info.image;
                 },
@@ -88,7 +113,7 @@
                 videoInfo: function() {
                     var vid = this.study.vid;
                     var youtubeid = this.study.youtubeid;
-                    if (my.videos==null || !my.videos.hasOwnProperty(youtubeid)) {
+                    if (my.videos == null || !my.videos.hasOwnProperty(youtubeid)) {
                         return {};
                     }
                     var sentenceData = JSON.parse(localStorage.getItem(vid));
@@ -184,8 +209,8 @@
                     var saveObj = {};
                     var self = this;
                     var nodeName = my.name + "/videos/" + this.study.youtubeid + "/sentences";
-                    var sentences = this.db.query(nodeName,function(saveObj) {
-                        saveObj = saveObj == null ? {}:saveObj;
+                    var sentences = this.db.query(nodeName, function(saveObj) {
+                        saveObj = saveObj == null ? {} : saveObj;
                         var key = 'idx' + (sentObj.idx < 10 ? '0' : '') + sentObj.idx;
                         if (!saveObj.hasOwnProperty(key)) {
                             saveObj[key] = [];
@@ -193,7 +218,7 @@
                         var info = sentObj.info();
                         delete info.sentence;
                         saveObj[key].push(info);
-                        self.db.update(nodeName,saveObj);
+                        self.db.update(nodeName, saveObj);
                     });
                 }
             }
@@ -209,8 +234,8 @@
                     my.fire('user-info-ready');
                 });
             },
-            updateSentence:function(sentObj){
-                this.user.updateSentence(this.$.users,this.$.user,sendObj);
+            updateSentence: function(sentObj) {
+                this.user.updateSentence(this.$.users, this.$.user, sendObj);
             },
             info: function() {
                 console.log(this.user);

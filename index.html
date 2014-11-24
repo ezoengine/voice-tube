@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>App Router</title>
+    <script src="/bower_components/webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="/bower_components/app-router/app-router.html">
+    <style>
+    body {
+        font-family: 'Roboto 2', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        margin: 0;
+        background: #f1f1f1;
+    }
+    .green {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        height: 350px;
+        background: #70c26f;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="green"></div>
+    <app-router>
+        <!-- matches an exact path -->
+        <app-route path="/" import="/pages/user-page.html"></app-route>
+        <!-- matches an exact path -->
+        <app-route path="/home" import="/pages/home-page.html"></app-route>
+
+        <!-- matches using a wildcard -->
+        <app-route path="/customer/*" import="/pages/customer-page.html"></app-route>
+
+        <!-- matches using a path variable -->
+        <app-route path="/order/:id" import="/pages/order-page.html"></app-route>
+
+        <!-- matches a pattern like '/word/number' -->
+        <app-route path="/^\/\w+\/\d+$/i" regex import="/pages/regex-page.html"></app-route>
+
+        <!-- matches everything else -->
+        <app-route path="*" import="/pages/not-found-page.html"></app-route>
+    </app-router>
+</body>
+
+</html>

@@ -6,7 +6,7 @@
         <div id='main' class="card" on-click='{{click}}' on-mouseover='{{onHovered}}' on-mouseout='{{onUnhovered}}'>
 	    	<user-info id='data' name='{{name}}'></user-info>
             <div vertical layout>
-                <div style="width:100%;height:240px;overflow:hidden">
+                <div style="width:100%;height:220px;overflow:hidden">
                     <img id='img' class='photo'>
                 </div>
                 <div class='username'>{{name}}</div>
@@ -57,7 +57,7 @@
                 var min = sec > 60 ? parseInt(sec / 60) : 0;
                 var hour = min > 60 ? parseInt(min / 60) : 0;
                 if (hour > 0) {
-                    return hour + '小時' + min % 60 + '分鐘';
+                    return hour + '小時' + min % 60 + '分';
                 }
                 if (min > 0) {
                     return min + '分' + sec % 60 + '秒';

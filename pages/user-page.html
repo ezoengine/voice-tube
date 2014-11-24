@@ -1,0 +1,189 @@
+<link href="../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
+<link rel="import" href="../elements/user-card-list.html">
+<link rel="import" href="../elements/c3-timeseries.html">
+<polymer-element name="user-page" verify attributes=''>
+    <template>
+        <style>
+        .chip-container {
+            position: absolute;
+            top: 235px;
+            right: 0;
+            left: 0;
+            text-align: center;
+        }
+        .chip {
+            display: inline-block;
+            position: relative;
+            border-radius: 3px;
+            margin: 4px;
+            overflow: hidden;
+            text-align: start;
+            background-color: #fff;
+            box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
+        }
+        .chip-top {
+            width: 200px;
+            height: 200px;
+        }
+        .chip-bottom {
+            padding: 8px;
+            line-height: 1.5;
+        }
+        #details {
+            padding: 200px 10% 0;
+        }
+        .card {
+            height: 400px;
+            border-radius: 3px;
+            text-align: start;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .card-left {
+            width: 400px;
+        }
+        .card-right {
+            padding: 24px;
+        }
+        .card-icon {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            margin-right: 16px;
+        }
+        </style>
+
+        <core-animated-pages selected="{{page}}" transitions="hero-transition" on-core-animated-pages-transition-end="{{complete}}">
+
+            <section>
+                <div class="chip-container" hero-p on-tap="{{transition}}">
+                    <template repeat="{{users as user}}">
+                        <div class="chip" hero-id="hero_{{user.name}}" hero?="{{selectedUser === user }}">
+                            <div>
+                                <user-card id="{{user.name}}" name='{{user.name}}' class='card'></user-card>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <section id="details">
+                <div class="card" layout horizontal hero-id="hero_{{selectedUser.name}}" hero on-tap="{{transition}}">
+
+                    <div class="card-left" style="background:#ffe" hero>
+                    </div>
+                    <div class="card-right" flex>
+                        <div layout horizontal center>
+                            <div class="card-icon" style="background: url({{selectedUser.ele.image}});background-size: 64px 64px;background-repeat: no-repeat;"></div>
+                        </div>
+                        <br>
+                        <c3-timeseries id='c3t' width='80%'></c3-timeseries>
+                    </div>
+                </div>
+            </section>
+
+        </core-animated-pages>
+
+        <!--
+        <user-card-list id='uclist'></user-card-list>
+        -->
+    </template>
+    <script>
+    (function() {
+        Object.size = function(obj) {
+            var size = 0,
+                key;
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) size++;
+            }
+            return size;
+        };
+        Object.keys = function(obj) {
+            var keys = [];
+            for (key in obj) {
+                keys.push(key);
+            }
+            return keys;
+        };
+
+        function getDate(args) {
+            var date;
+            if (typeof args == "number") {
+                if (args > 10000000) {
+                    date = new Date(args);
+                } else {
+                    var today = new Date().getTime();
+                    args = args * 86400 * 1000;
+                    date = new Date(today + args);
+                }
+            } else {
+                date = new Date();
+            }
+            var day = date;
+            var dd = day.getDate();
+            var mm = day.getMonth() + 1; //January is 0! 
+            var yyyy = day.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd
+            }
+            if (mm < 10) {
+                mm = '0' + mm
+            }
+            return yyyy + '/' + mm + '/' + dd;
+        }
+
+        Polymer({
+            page: 0,
+            selectedUser: null,
+            users: [{
+                name: 'marty'
+            }, {
+                name: 'Lynn'
+            }, {
+                name: 'NaNa'
+            }, {
+                name: 'NiNa'
+            }],
+            ready: function() {},
+            transition: function(e) {
+                if (this.page === 0 && e.target.templateInstance.model.user) {
+                    this.page = 1;
+                    this.selectedUser = e.target.templateInstance.model.user;
+                    var username = this.selectedUser.name;
+                    this.selectedUser['ele'] = this.$[username].user;
+                    qq = this;
+                } else {
+                    this.page = 0;
+                    var username = this.selectedUser.name;
+                    //this.$[username].style.visibility='hidden';
+                }
+            },
+            complete: function() {
+                if (this.page == 1) {
+                    this.$.c3t.style.display = '';
+                    this.showUserChart();
+                } else {
+                    this.$.c3t.style.display = 'none';
+                }
+            },
+            showUserChart: function() {
+                var info = this.selectedUser['ele'].studyHistory();
+                var columns = [
+                    [],
+                    ['time(min)'],
+                    ['sentence']
+                ]
+                for (var key in info) {
+                    columns[0].push(key);
+                    var min = parseInt(info[key].spendTime / 60);
+                    columns[1].push(min);
+                    columns[2].push(info[key].sentenceAmt);
+                }
+                this.$.c3t.render(columns);
+            }
+
+        });
+    })();
+    </script>
+</polymer-element>

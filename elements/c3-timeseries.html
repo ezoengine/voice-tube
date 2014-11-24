@@ -1,6 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <script src="chartlib/d3.min.js" charset="utf-8"></script>
-<script src="chartlib/c3.min.js"></script>
+<script src="chartlib/c3.js"></script>
 <polymer-element name="c3-timeseries" verify attributes='columns'>
 <template>
 	<link href="chartlib/c3.css" rel="stylesheet" type="text/css">
@@ -14,14 +14,15 @@
 		  stroke-width: 5px;
 		}
 	</style>
-	<div id='ch' style="width:{{width}}"></div>
+	<div id='ch' style="width:{{width}};height:{{height}}"></div>
 </div>
 </template>
 <script>
 (function(){
 	Polymer({
 		columns:'',
-		width:'72%',
+		width:'720px',
+		height:'300px',
 		ready:function(){
 			var my = this;
 	    },
@@ -51,9 +52,6 @@
     		data[0].splice(0, 0, "x");
     		obj['data']['columns'] = data;
     		c3.generate(obj);
-    		chart.load({
-		        columns: [['data', 70]]
-		    });
 	    }
 	});
 })();

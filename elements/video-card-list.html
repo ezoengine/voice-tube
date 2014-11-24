@@ -16,17 +16,17 @@
             videos: [],
             ready: function() {
                 var my = this;
-            this.$.db.query('videos', function(data) {
-                my.$.db.query('order', function(list) {
-                    list = list.split(',');
-                    var videoList = [];
-                    for (var i in list) {
-                        var videoInfo = data[list[i]];
-                        videoList.push(videoInfo);
-                    }
-                    my.videos = videoList;
+                this.$.db.query('videos', function(data) {
+                    my.$.db.query('order', function(list) {
+                        list = list.split(',');
+                        var videoList = [];
+                        for (var i in list) {
+                            var videoInfo = data[list[i]];
+                            videoList.push(videoInfo);
+                        }
+                        my.videos = videoList;
+                    });
                 });
-            });
             }
         });
     })();
