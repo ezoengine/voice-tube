@@ -26,7 +26,11 @@
     <div class="green"></div>
     <app-router>
         <!-- matches an exact path -->
-        <app-route path="/" import="/pages/user-page.html"></app-route>
+        <app-route path="/" import="/pages/main-page.html"></app-route>
+
+        <!-- matches an exact path -->
+        <app-route path="/users/" import="/pages/user-page.html"></app-route>
+
         <!-- matches an exact path -->
         <app-route path="/home" import="/pages/home-page.html"></app-route>
 

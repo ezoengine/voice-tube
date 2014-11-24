@@ -4,24 +4,24 @@
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono">
     <style>
     body {
-        min-width:960px;
-        min-height:640px;
+        min-width: 960px;
+        min-height: 640px;
         font: 'Droid Sans Mono', sans-serif;
     }
     </style>
     <link rel='stylesheet' href="a.css">
-    <script src="bower_components/platform/platform.js"></script>
+    <script src='bower_components/webcomponentsjs/webcomponents.js'></script>
     <link rel="import" href="elements/user-card-list.html">
     <link rel="import" href="elements/video-card-list.html">
     <link rel="import" href="elements/voice-tube.html">
     <link rel="import" href="elements/user-status.html">
     <link rel="import" href="elements/data-base.html">
-    <script src="elements/jquery-2.1.1.min.js"></script>
+    <link rel="import" href="elements/range-slider.html">
     <script src="jsUtils.js"></script>
 </head>
 
 <body class='fontstyle' unresolved fullbleed>
-    
+
     <div id='cards' vertical layout center-justified>
         <user-card-list id='uclist'></user-card-list>
         <br>
@@ -36,16 +36,12 @@
         </div>
     </div>
 
+
     <div id='selectRange' style='margin:0 auto;'>
         <user-status id='userStatus' style="font-size:1.2em;"></user-status>
+
         <div layout horizontal style='font-size:2em;width:600px;margin-top:50px' center>
-            <div>
-                <input id='srange' value='1' style='width:150px;text-align:center;font-size:2em'>
-            </div>
-            <div flex style='text-align:center'>~</div>
-            <div>
-                <input id='erange' value='70' style='width:150px;text-align:center;font-size:2em'>
-            </div>
+            <div id='rrr' flex></div>    
         </div>
         <div style='width:600px;text-align:center'>
             <button id='go' style='width:80%;height:100px;font-size:4em;margin:100px auto'>Go</button>
@@ -68,96 +64,102 @@
         </div>
     </div>
     <data-base id='video' url="https://voice-tube-cdn.firebaseio.com/videos">
-    <script>
-    function showUserChart(user) {
-        window.user = user;
-        var info = user.studyHistory();
-        var columns = [
-            [],
-            ['time(min)'],
-            ['sentence']
-        ]
-        for (var key in info) {
-            columns[0].push(key);
-            var min = parseInt(info[key].spendTime / 60);
-            columns[1].push(min);
-            columns[2].push(info[key].sentenceAmt);
+        <script>
+        function showUserChart(user) {
+            window.user = user;
+            var info = user.studyHistory();
+            var columns = [
+                [],
+                ['time(min)'],
+                ['sentence']
+            ]
+            for (var key in info) {
+                columns[0].push(key);
+                var min = parseInt(info[key].spendTime / 60);
+                columns[1].push(min);
+                columns[2].push(info[key].sentenceAmt);
+            }
+            c3t.render(columns);
         }
-        c3t.render(columns);
-    }
 
-    //window.onbeforeunload = function() { return "You work will be lost."; };
-    //c3t.columns = '[["2013/01/01", "2013/01/02"],["data1", 30, 200],["data2", 310, 100]]'
-    var range = localStorage.getItem('selectRange');
-    if (range != null) {
-        range = JSON.parse(range);
-        srange.value = range.start;
-        erange.value = range.end;
-    }
+        //window.onbeforeunload = function() { return "You work will be lost."; };
+        //c3t.columns = '[["2013/01/01", "2013/01/02"],["data1", 30, 200],["data2", 310, 100]]'
 
-    go.addEventListener('click', function(e) {
-        var range = {
-            start: srange.value,
-            end: erange.value
-        };
-        localStorage.setItem('selectRange', JSON.stringify(range));
-        $('#selectRange').fadeOut(function() {
-            user.range = range;
-            showExam();
+
+        go.addEventListener('click', function(e) {
+            var range = {
+                start: rs.minval,
+                end: rs.maxval
+            };
+            localStorage.setItem('selectRange', JSON.stringify(range));
+            $('#selectRange').fadeOut(function() {
+                user.range = range;
+                showExam();
+            });
         });
-    });
 
-    function showExam() {
-        video.query(user.study.vid, function(captions) {
-         localStorage.setItem(user.study.vid,JSON.stringify(captions));
-         document.querySelector('#ctx').innerHTML =
-            "<voice-tube id='v' vid='" + user.study.vid +
-            "' youtubeid='" + user.study.youtubeid +
-            "' exam='" + user.range.start + '..' + user.range.end +
-            "' size='32'></voice-tube>";         
+        function showExam() {
+            video.query(user.study.vid, function(captions) {
+                localStorage.setItem(user.study.vid, JSON.stringify(captions));
+                document.querySelector('#ctx').innerHTML =
+                    "<voice-tube id='v' vid='" + user.study.vid +
+                    "' youtubeid='" + user.study.youtubeid +
+                    "' exam='" + user.range.start + '..' + user.range.end +
+                    "' size='32'></voice-tube>";
+            });
+            $('#showtime').fadeIn();
+        }
+
+        addEventListener('user-card-click', function(e) {
+            $('#cards').fadeOut(function() {
+                $('#videos').fadeIn();
+            });
         });
-        $('#showtime').fadeIn();
-    }
 
-    addEventListener('user-card-click', function(e) {
-        $('#cards').fadeOut(function() {
-            $('#videos').fadeIn();
+        addEventListener('user-card-onHovered', function(e) {
+            var user = e.detail;
+            showUserChart(user);
         });
-    });
 
-    addEventListener('user-card-onHovered', function(e) {
-        var user = e.detail;
-        showUserChart(user);
-    });
-
-    addEventListener('video-card-click', function(e) {
-        user.study = e.detail;
-        $('#videos').fadeOut(function() {
-            $('#selectRange').fadeIn();
-            info = user.videoInfo();
-            userStatus.info(info);
-            userStatus.renderChart(user);
+        addEventListener('video-card-click', function(e) {
+            user.study = e.detail;
+            $('#videos').fadeOut(function() {
+                $('#selectRange').fadeIn();
+                info = user.videoInfo();
+                userStatus.info(info);
+                userStatus.renderChart(user);
+                //
+                rrr.innerHTML = "<range-slider id='rs'></range-slider>";
+                var range = localStorage.getItem('selectRange');
+                if (range != null) {
+                    range = JSON.parse(range);
+                    rs.minval = range.start;
+                    rs.maxval = range.end;
+                }
+            });
         });
-    });
 
-    addEventListener('x-sentence-completed', function(e) {
-        var sentObj = e.detail.val;
-        user.updateSentence(sentObj);
-    });
+        addEventListener('x-sentence-completed', function(e) {
+            var sentObj = e.detail.val;
+            user.updateSentence(sentObj);
+        });
 
-    addEventListener('voice-tube-ready', function(e) {
-        v.focus();
-    });
+        addEventListener('voice-tube-ready', function(e) {
+            v.focus();
+        });
 
-    addEventListener('voice-tube-completed', function(e) {
-        var i = e.detail;
-        board.style.display = 'block';
-        document.querySelector('#score').innerHTML = i.score;
-        document.querySelector('#sc').innerHTML = i.score;
-        document.querySelector('#result').innerHTML = '花費時間:' + i.spendTime;
-        document.querySelector('#speak').innerHTML = '聆聽次數:' + i.speakTimes;
-    });
-    </script>
+        addEventListener('voice-tube-completed', function(e) {
+            var i = e.detail;
+            board.style.display = 'block';
+            document.querySelector('#score').innerHTML = i.score;
+            document.querySelector('#sc').innerHTML = i.score;
+            document.querySelector('#result').innerHTML = '花費時間:' + i.spendTime;
+            document.querySelector('#speak').innerHTML = '聆聽次數:' + i.speakTimes;
+        });
+
+
+
+        </script>
 </body>
 
 </html>

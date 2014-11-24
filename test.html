@@ -1,30 +1,19 @@
 <html>
 
 <head>
-    <style>
-    body {
-        font-size: 5rem;
-    }
-    </style>
-    <script src="bower_components/platform/platform.js"></script>
-    <link rel="import" href="elements/user-card.html">
-    <link rel="import" href="elements/data-base.html">
-    <link rel="import" href="elements/video-card-list.html">
+    <script src='bower_components/webcomponentsjs/webcomponents.js'></script>
+    <link rel="import" href="elements/range-slider.html">
+
 </head>
 
 <body unresolved>
-    <video-card-list></video-card-list>
-    <!-- <div horizontal layout around-justified style="margin:100px">
-        <user-card name='marty'></user-card>
-        <user-card name='NiNa'></user-card>
-        <user-card name='Lynn'></user-card>
-        <user-card name='NaNa'></user-card>
-        </div>
-        -->
+    <br>
+    <div id='q'></div>
+    <br>
     <script>
-    addEventListener('polymer-ready', function() {
-       
-    });
+    	addEventListener("polymer-ready",function(){
+    		q.innerHTML = "<range-slider id='rs'></range-slider>";
+    	});
     </script>
 </body>
 
