@@ -40,8 +40,8 @@
     <div id='selectRange' style='margin:0 auto;'>
         <user-status id='userStatus' style="font-size:1.2em;"></user-status>
 
-        <div layout horizontal style='font-size:2em;width:600px;margin-top:50px' center>
-            <div id='rrr' flex></div>    
+        <div layout horizontal style='font-size:2em;width:800px;margin-top:50px' center>
+            <div id='rrr' flex style="margin:20px"></div> 
         </div>
         <div style='width:600px;text-align:center'>
             <button id='go' style='width:80%;height:100px;font-size:4em;margin:100px auto'>Go</button>
@@ -130,6 +130,7 @@
                 userStatus.renderChart(user);
                 //
                 rrr.innerHTML = "<range-slider id='rs'></range-slider>";
+                rs.max = info.sentences.length;
                 var range = localStorage.getItem('selectRange');
                 if (range != null) {
                     range = JSON.parse(range);
