@@ -82,10 +82,6 @@
             c3t.render(columns);
         }
 
-        //window.onbeforeunload = function() { return "You work will be lost."; };
-        //c3t.columns = '[["2013/01/01", "2013/01/02"],["data1", 30, 200],["data2", 310, 100]]'
-
-
         go.addEventListener('click', function(e) {
             var range = {
                 start: rs.minval,
@@ -130,7 +126,8 @@
                 userStatus.renderChart(user);
                 //
                 rrr.innerHTML = "<range-slider id='rs'></range-slider>";
-                rs.max = info.sentences.length;
+                console.log('info',info);
+                rs.max = info.sentenceAmt;
                 var range = localStorage.getItem('selectRange');
                 if (range != null) {
                     range = JSON.parse(range);
